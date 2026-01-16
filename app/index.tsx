@@ -35,14 +35,12 @@ export default function LandingPage() {
           <View style={styles.buttonContainer}>
             <Button
               text="Browse Menu"
-              color={Colors.tomatoRed}
               onClick={() => router.push("/home")}
               buttonStyle={styles.primaryButton}
               textStyle={styles.buttonText}
             />
             <Button
               text={"Login / Sign Up"}
-              color={Colors.secondary}
               onClick={() => router.push("/register")}
               buttonStyle={styles.secondaryButton}
               textStyle={styles.secondaryButtonText}

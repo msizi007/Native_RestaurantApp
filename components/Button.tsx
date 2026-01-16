@@ -1,4 +1,3 @@
-import { Colors } from "@/types/Colors";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -12,7 +11,6 @@ import {
 
 interface Props {
   text: string;
-  color: Colors;
   onClick: () => void;
   buttonStyle: StyleProp<ViewStyle>;
   textStyle: StyleProp<TextStyle>;

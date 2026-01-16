@@ -1,3 +1,4 @@
+import { addUser } from "@/services/userService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import type { User } from "./../types/User";
@@ -14,16 +15,16 @@ const initialState: userState = {
   error: "",
 };
 
-const BASE_URL = "http://localhost:3000/users";
+const BASE_URL = "http://localhost:3000/api/users";
 
 export const registerUser = createAsyncThunk(
   "user/register",
   async (user: User, { rejectWithValue }) => {
     try {
-      const response = await axios.post(BASE_URL, user);
+      const newUser = await addUser(user);
 
-      if (!response.data) rejectWithValue("Failed to register user");
-      return response.data;
+      if (!newUser) rejectWithValue("Failed to register user");
+      return newUser;
     } catch (error) {
       return rejectWithValue(error);
     }
