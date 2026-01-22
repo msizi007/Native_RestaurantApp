@@ -4,17 +4,12 @@ import { getCategoryImages, getTrendingImages } from "@/features/imageSlice";
 import { getTrendingItems } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
-import {
-  iLargeBurger,
-  iPizza2,
-  iWine1,
-  iWolfLamb,
-  MENU_SIZE,
-} from "@/types/Globals";
+import { iLargeBurger, iPizza2, iWine1, iWolfLamb } from "@/types/Globals";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import {
+  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,6 +17,9 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+
+const { width } = Dimensions.get("window");
+const COLUMN_WIDTH = width / 2 - 20; // 2 columns with padding
 
 const categories = [
   "Burger & Chips",
@@ -127,7 +125,7 @@ export default function Home() {
               image={menu.img}
               text={menu.text}
               textStyle={styles.menuText}
-              price={`R ${menu.price}`}
+              price={`${menu.price}`}
               priceStyle={styles.menuText}
               imageStyle={styles.gridItemImage}
             />
@@ -175,8 +173,8 @@ const styles = StyleSheet.create({
   demo: {
     backgroundColor: "#e0e0e0", // Using light gray for a cleaner look
     borderRadius: 15,
-    width: MENU_SIZE,
-    height: MENU_SIZE,
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH,
     marginHorizontal: 5,
   },
   menuText: {
@@ -240,5 +238,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 10,
     fontWeight: "bold",
+  },
+  menuImage: {
+    width: "100%",
+    borderRadius: 15,
   },
 });

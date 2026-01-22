@@ -14,7 +14,6 @@ export default function RootLayout() {
       >
         {/* Set the title specifically for your landing page */}
         <Stack.Screen name="index" options={{ title: "Welcome" }} />
-        <Stack.Screen name="login" options={{ title: "Sign In" }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
       </Stack>
     </Provider>

@@ -1,4 +1,3 @@
-import { MENU_SIZE } from "@/types/Globals";
 import React from "react";
 import {
   Image,
@@ -11,6 +10,11 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
+
+import { Dimensions } from "react-native";
+
+const { width } = Dimensions.get("window");
+const COLUMN_WIDTH = width / 2 - 20; // 2 columns with padding
 
 interface Props {
   // Use id or index for the key, but remember 'key' isn't
@@ -36,7 +40,7 @@ const MenuItem = (props: Props) => {
         source={props.image}
         style={props.imageStyle || styles.image}
         resizeMode="center"
-        width={10}
+        width={120}
       />
       {props.text && <Text style={props.textStyle}>{props.text}</Text>}
       {props.price && <Text style={props.priceStyle}>{props.price}</Text>}
@@ -50,8 +54,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   image: {
-    width: MENU_SIZE - 20,
-    height: MENU_SIZE - 20,
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH,
   },
 });
 

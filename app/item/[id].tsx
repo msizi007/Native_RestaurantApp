@@ -26,8 +26,8 @@ export default function ItemDetailScreen() {
     fetchItem();
   }, [id]);
 
-  function addToCart(){
-    
+  function addToCart() {
+    // HOW TO ADD ITEMS TO CART?
   }
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
@@ -35,7 +35,13 @@ export default function ItemDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: item.imageUrl }} style={styles.image} />
+      <View style={styles.imageContainer}>
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={styles.image}
+          resizeMode="center"
+        />
+      </View>
       <Text style={styles.title}>{item.name}</Text>
       <Text style={styles.price}>${item.price}</Text>
       <Text style={styles.description}>{item.description}</Text>
@@ -50,8 +56,8 @@ export default function ItemDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "red" },
-  image: { width: "100%", height: 300, borderRadius: 15 },
+  container: { flex: 1, padding: 20 },
+  image: { width: "100%", height: 300, borderRadius: 15, padding: 50 },
   title: { fontSize: 24, fontWeight: "bold", marginVertical: 10 },
   price: {
     fontSize: 20,
@@ -72,4 +78,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  imageContainer: { alignItems: "center", padding: 20 },
 });
