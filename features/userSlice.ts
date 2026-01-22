@@ -23,12 +23,14 @@ export const registerUser = createAsyncThunk(
     try {
       const newUser = await addUser(user);
 
+      console.log("newUser", { newUser });
+
       if (!newUser) rejectWithValue("Failed to register user");
       return newUser;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const loginUser = createAsyncThunk(
@@ -36,12 +38,13 @@ export const loginUser = createAsyncThunk(
   async (user: User, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${BASE_URL}/login`, user);
+
       if (!response.data) rejectWithValue("Failed to login user");
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 const userSlice = createSlice({
@@ -57,6 +60,7 @@ const userSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.current = action.payload as User;
+        console.log("fulfilled payload", action.payload);
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;

@@ -3,6 +3,7 @@ import React from "react";
 import {
   Image,
   ImageSourcePropType,
+  ImageStyle,
   StyleProp,
   StyleSheet,
   Text,
@@ -17,20 +18,28 @@ interface Props {
   id?: number | string;
   style?: StyleProp<ViewStyle>;
   image?: ImageSourcePropType;
-  text: string;
+  text?: string;
+  price?: string;
   textStyle?: StyleProp<TextStyle>;
+  priceStyle?: StyleProp<TextStyle>;
+  imageStyle?: StyleProp<ImageStyle>;
+  onPress?: () => void;
 }
 
 const MenuItem = (props: Props) => {
   return (
-    <TouchableOpacity style={[styles.container, props.style]}>
+    <TouchableOpacity
+      style={props.style || styles.container}
+      onPress={props.onPress}
+    >
       <Image
         source={props.image}
-        style={styles.image}
+        style={props.imageStyle || styles.image}
         resizeMode="center"
         width={10}
       />
-      <Text style={props.textStyle}>{props.text}</Text>
+      {props.text && <Text style={props.textStyle}>{props.text}</Text>}
+      {props.price && <Text style={props.priceStyle}>{props.price}</Text>}
     </TouchableOpacity>
   );
 };

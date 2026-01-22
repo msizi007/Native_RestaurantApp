@@ -1,15 +1,19 @@
 import MenuItem from "@/components/MenuItem";
 import Promo from "@/components/Promo";
+import { getCategoryImages, getTrendingImages } from "@/features/imageSlice";
+import { getTrendingItems } from "@/features/itemSlice";
+import { AppDispatch, RootState } from "@/store";
+import { Colors } from "@/types/Colors";
 import {
-  beverages,
-  burger,
-  chicken,
-  desserts,
+  iLargeBurger,
+  iPizza2,
+  iWine1,
+  iWolfLamb,
   MENU_SIZE,
-  pizza,
-  vegeterian,
 } from "@/types/Globals";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -17,16 +21,59 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+
+const categories = [
+  "Burger & Chips",
+  "Beverages",
+  "Vegeterian",
+  "Chicken",
+  "Desserts",
+  "Pizza",
+].sort();
+
+const MENU = [
+  { id: 1, img: iPizza2, text: "Pizza", price: "R 144.99" },
+  { id: 2, img: iWine1, text: "Wine", price: "R 149.99" },
+  { id: 3, img: iLargeBurger, text: "Burger (Large)", price: "R 59.99" },
+  { id: 4, img: iWolfLamb, text: "Wolf Lamb", price: "R 119.99" },
+];
 
 export default function Home() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { categoryImages, trendingImages } = useSelector(
+    (state: RootState) => state.image,
+  );
+  const { trending } = useSelector((state: RootState) => state.item);
+
+  useEffect(() => {
+    dispatch(getCategoryImages());
+    dispatch(getTrendingImages());
+    dispatch(getTrendingItems());
+  }, []);
+
+  useEffect(() => {
+    console.log("category Images", categoryImages);
+    console.log("trending Images", trendingImages);
+    console.log("trending items", trending);
+  }, [categoryImages, trendingImages, trending]);
+
+  const handlePress = (itemId: string) => {
+    router.push({
+      pathname: "/item/[id]",
+      params: { id: itemId },
+    });
+  };
 
   return (
-    // Change the outer View to a ScrollView so the whole page is scrollable
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 20 }}
     >
+      <View style={styles.cartFAB}>
+        <Ionicons name="cart" size={24} color="white" />
+      </View>
       <Promo />
 
       <Text style={styles.sectionTitle}>Food Categories</Text>
@@ -35,42 +82,18 @@ export default function Home() {
         showsHorizontalScrollIndicator={false}
         style={styles.horizontalScroll}
       >
-        <MenuItem
-          key={1}
-          image={burger}
-          text="Burger & Chips"
-          textStyle={styles.demoText}
-        />
-        <MenuItem
-          key={2}
-          image={beverages}
-          text="Beverages"
-          textStyle={styles.demoText}
-        />
-        <MenuItem
-          key={3}
-          image={vegeterian}
-          text="Vegeterian"
-          textStyle={styles.demoText}
-        />
-        <MenuItem
-          key={4}
-          image={chicken}
-          text="Chicken"
-          textStyle={styles.demoText}
-        />
-        <MenuItem
-          key={5}
-          image={desserts}
-          text="Desserts"
-          textStyle={styles.demoText}
-        />
-        <MenuItem
-          key={6}
-          image={pizza}
-          text="Pizza"
-          textStyle={styles.demoText}
-        />
+        {/* Menu Items */}
+        {categoryImages &&
+          categories.map((category, i) => (
+            <MenuItem
+              key={i}
+              image={{
+                uri: categoryImages[i].publicUrl!,
+              }}
+              text={category}
+              textStyle={styles.menuText}
+            />
+          ))}
       </ScrollView>
 
       <Text style={styles.sectionTitle}>Trending This Week</Text>
@@ -79,14 +102,37 @@ export default function Home() {
         showsHorizontalScrollIndicator={false}
         style={styles.horizontalScroll}
       >
-        {[1, 2, 3, 4, 5].map((item) => (
-          <TouchableOpacity key={item} style={styles.demo} />
-        ))}
+        {/* Trending Items */}
+        {trending &&
+          trending.map((item) => (
+            <MenuItem
+              key={item.id}
+              image={{ uri: item.imageUrl }}
+              price={`R ${item.price}`}
+              priceStyle={styles.menuText}
+              onPress={() => handlePress(String(item.id))}
+            />
+          ))}
       </ScrollView>
 
       {/* Grid Section - Two per row */}
-      <Text style={styles.sectionTitle}>Food Shop Near You</Text>
+      <Text style={styles.sectionTitle}>Menu</Text>
       <View style={styles.gridContainer}>
+        {
+          /* Menu Items */
+          MENU.map((menu) => (
+            <MenuItem
+              style={styles.gridItem}
+              key={menu.id}
+              image={menu.img}
+              text={menu.text}
+              textStyle={styles.menuText}
+              price={`R ${menu.price}`}
+              priceStyle={styles.menuText}
+              imageStyle={styles.gridItemImage}
+            />
+          ))
+        }
         {[1, 2, 3, 4, 5, 6].map((item) => (
           <TouchableOpacity key={`grid-${item}`} style={styles.gridItem}>
             <View style={styles.imagePlaceholder} />
@@ -102,7 +148,16 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    position: "relative",
+  },
+  cartFAB: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    zIndex: 1,
+    borderRadius: "50%",
+    backgroundColor: Colors.tomatoRed,
+    padding: 10,
   },
   sectionTitle: {
     fontSize: 18,
@@ -124,7 +179,7 @@ const styles = StyleSheet.create({
     height: MENU_SIZE,
     marginHorizontal: 5,
   },
-  demoText: {
+  menuText: {
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 5,
@@ -151,6 +206,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  gridItemImage: {
+    width: "100%",
+    height: 100,
+    borderRadius: 10,
+  },
   imagePlaceholder: {
     backgroundColor: "#E0E0E0",
     height: 100,
@@ -162,5 +222,23 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 4,
     marginBottom: 6,
+  },
+  badge: {
+    position: "absolute",
+    right: -6,
+    top: -3,
+    backgroundColor: "#000", // Black or Red badge
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#fff",
+  },
+  badgeText: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "bold",
   },
 });
