@@ -15,3 +15,7 @@ export interface MenuItem {
   imageUrl: string;
   trending?: boolean;
 }
+
+export interface CartItem extends MenuItem {
+  quantity: number;
+}

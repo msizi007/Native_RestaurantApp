@@ -3,14 +3,20 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 
 import { Button } from "@/components/Button";
+import CartFAB from "@/components/cartFAB";
+import { addToCart } from "@/features/cartSlice";
 import { getMenuItemById } from "@/services/itemService";
+import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
 import { MenuItem } from "@/types/MenuItem";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function ItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [item, setItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
 
   useEffect(() => {
     async function fetchItem() {
@@ -26,8 +32,8 @@ export default function ItemDetailScreen() {
     fetchItem();
   }, [id]);
 
-  function addToCart() {
-    // HOW TO ADD ITEMS TO CART?
+  function addToCartHandler(item: MenuItem) {
+    dispatch(addToCart(item));
   }
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
@@ -35,6 +41,7 @@ export default function ItemDetailScreen() {
 
   return (
     <View style={styles.container}>
+      <CartFAB />
       <View style={styles.imageContainer}>
         <Image
           source={{ uri: item.imageUrl }}
@@ -47,7 +54,7 @@ export default function ItemDetailScreen() {
       <Text style={styles.description}>{item.description}</Text>
       <Button
         text="Add to Cart"
-        onClick={addToCart}
+        onClick={() => addToCartHandler(item)}
         buttonStyle={styles.button}
         textStyle={styles.textButton}
       />

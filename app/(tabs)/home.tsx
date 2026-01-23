@@ -1,11 +1,10 @@
+import CartFAB from "@/components/cartFAB";
 import MenuItem from "@/components/MenuItem";
 import Promo from "@/components/Promo";
 import { getCategoryImages, getTrendingImages } from "@/features/imageSlice";
 import { getTrendingItems } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
-import { Colors } from "@/types/Colors";
 import { iLargeBurger, iPizza2, iWine1, iWolfLamb } from "@/types/Globals";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import {
@@ -69,9 +68,7 @@ export default function Home() {
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 20 }}
     >
-      <View style={styles.cartFAB}>
-        <Ionicons name="cart" size={24} color="white" />
-      </View>
+      <CartFAB />
       <Promo />
 
       <Text style={styles.sectionTitle}>Food Categories</Text>
@@ -147,17 +144,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
-  },
-  cartFAB: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 1,
-    borderRadius: "50%",
-    borderWidth: 2,
-    borderColor: "white",
-    backgroundColor: Colors.tomatoRed,
-    padding: 10,
   },
   sectionTitle: {
     fontSize: 18,
