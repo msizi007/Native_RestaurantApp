@@ -1,6 +1,7 @@
 export enum Colors {
   tomatoRed = "#ff6347",
-  secondary = "#fff",
+  primary = "#FF914D",
   white = "#fff",
   black = "#000",
+  secondary = "#F0F0F0",
 }

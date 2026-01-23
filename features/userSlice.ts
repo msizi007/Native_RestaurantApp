@@ -1,7 +1,7 @@
-import { addUser } from "@/services/userService";
+import { addUserDB, loginUserDB } from "@/services/userService";
+import { validateEmail } from "@/utils/validator";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import type { User } from "./../types/User";
+import type { LoginCredentials, User } from "./../types/User";
 
 interface userState {
   current: User | null;
@@ -15,13 +15,25 @@ const initialState: userState = {
   error: "",
 };
 
-const BASE_URL = "http://localhost:3000/api/users";
-
 export const registerUser = createAsyncThunk(
   "user/register",
   async (user: User, { rejectWithValue }) => {
     try {
-      const newUser = await addUser(user);
+      if (
+        !user.firstName ||
+        !user.lastName ||
+        !user.email ||
+        !user.phoneNumber ||
+        !user.address ||
+        !user.password
+      )
+        return rejectWithValue("All fields are required");
+
+      const isValidEmail = validateEmail(user.email);
+
+      if (!isValidEmail) return rejectWithValue("Invalid email address");
+
+      const newUser = await addUserDB(user);
 
       console.log("newUser", { newUser });
 
@@ -35,12 +47,21 @@ export const registerUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "user/login",
-  async (user: User, { rejectWithValue }) => {
+  async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}/login`, user);
+      if (!credentials.email || !credentials.password)
+        return rejectWithValue("All fields are required");
 
-      if (!response.data) rejectWithValue("Failed to login user");
-      return response.data;
+      // if not a valid email
+      if (!validateEmail(credentials.email))
+        return rejectWithValue("Invalid email address");
+
+      console.log(402, credentials);
+      const user = await loginUserDB(credentials);
+
+      console.log(400, user);
+
+      return user ? user : rejectWithValue("Failed to login user");
     } catch (error) {
       return rejectWithValue(error);
     }

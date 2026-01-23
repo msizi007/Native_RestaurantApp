@@ -6,16 +6,12 @@ export type ItemCategory =
   | "Desserts"
   | "Pizza";
 
-export interface MenuItem {
+export interface Item {
   id?: number;
   name: string;
-  price: string;
+  price: number;
   description: string;
   category: ItemCategory;
   imageUrl: string;
   trending?: boolean;
-}
-
-export interface CartItem extends MenuItem {
-  quantity: number;
 }

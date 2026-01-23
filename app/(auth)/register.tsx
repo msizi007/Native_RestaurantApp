@@ -3,7 +3,7 @@ import { registerUser } from "@/features/userSlice";
 import { AppDispatch, RootState } from "@/store";
 import { User } from "@/types/User";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,9 +16,10 @@ export default function Register() {
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const dispatch = useDispatch<AppDispatch>();
-  const { current } = useSelector((state: RootState) => state.user);
+  const { current, loading, error } = useSelector(
+    (state: RootState) => state.user,
+  );
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
 
@@ -32,23 +33,15 @@ export default function Register() {
       password,
     };
 
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !phoneNumber ||
-      !address ||
-      !password
-    ) {
-      setError("All fields are required");
-      console.log("All fields are required");
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
       return;
     }
 
     try {
       dispatch(registerUser(payload));
     } catch (error) {
-      setError(error as string);
+      console.log(error);
     }
   }
 
@@ -114,6 +107,12 @@ export default function Register() {
         value={confirmPassword}
         onChangeText={(text) => setConfirmPassword(text)}
       />
+      <Text style={styles.small}>
+        Already have an account?{" "}
+        <Link style={styles.link} href="/login">
+          Login
+        </Link>
+      </Text>
       {error && <Text style={styles.error}>{error}</Text>}
       <Button
         text="Register"
@@ -131,6 +130,16 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
     backgroundColor: "#fff",
+  },
+  small: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  link: {
+    color: "#ff6347",
+    fontWeight: "bold",
   },
   title: {
     fontSize: 28,

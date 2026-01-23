@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/superbase";
-import { User } from "@/types/User";
+import { LoginCredentials, User } from "@/types/User";
 
 export async function getUsers(): Promise<User | null> {
   let { data, error } = await supabase.from("Users").select("*");
@@ -25,13 +25,32 @@ export async function getUserById(id: string): Promise<User | null> {
   return data as User | null;
 }
 
-export async function addUser(user: User): Promise<User | null> {
+export async function addUserDB(user: User): Promise<User | null> {
   const { data, error } = await supabase
     .from("Users")
     .insert([user])
     .select()
     .single();
   console.log("data", data, "error", error);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as User | null;
+}
+
+export async function loginUserDB(
+  credentials: LoginCredentials,
+): Promise<User | null> {
+  const { data, error } = await supabase
+    .from("Users")
+    .select("*")
+    .eq("email", credentials.email)
+    .eq("password", credentials.password)
+    .single();
+
+  console.log(405, { data, error });
 
   if (error) {
     throw new Error(error.message);

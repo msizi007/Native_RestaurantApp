@@ -1,11 +1,15 @@
-import { getItems, getTrendingItemsDB } from "@/services/itemService";
-import { MenuItem } from "@/types/MenuItem";
+import {
+  getItemByIdDB,
+  getItemsDB,
+  getTrendingItemsDB,
+} from "@/services/itemService";
+import { Item } from "@/types/Item";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface userState {
-  current: MenuItem | null;
-  trending: MenuItem[] | null;
-  items: MenuItem[] | null;
+  current: Item | null;
+  trending: Item[] | null;
+  items: Item[] | null;
   loading: boolean;
   error: string;
 }
@@ -18,13 +22,26 @@ const initialState: userState = {
   error: "",
 };
 
-export const getAllItems = createAsyncThunk(
+export const getItems = createAsyncThunk(
   "item/getAllItems",
   async (_, { rejectWithValue }) => {
     try {
-      const items = await getItems();
+      const items = await getItemsDB();
 
       return items ? items : rejectWithValue("Failed to get menu items");
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const getItemById = createAsyncThunk(
+  "item/getItemById",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const item = await getItemByIdDB(id);
+
+      return item ? item : rejectWithValue("Failed to get menu items");
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -51,16 +68,16 @@ const itemSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getAllItems.pending, (state) => {
+      .addCase(getItems.pending, (state) => {
         state.loading = true;
         state.error = "";
       })
-      .addCase(getAllItems.fulfilled, (state, action) => {
+      .addCase(getItems.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload as MenuItem[];
+        state.items = action.payload as Item[];
         console.log("fulfilled payload", action.payload);
       })
-      .addCase(getAllItems.rejected, (state, action) => {
+      .addCase(getItems.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -70,10 +87,22 @@ const itemSlice = createSlice({
       })
       .addCase(getTrendingItems.fulfilled, (state, action) => {
         state.loading = false;
-        state.trending = action.payload as MenuItem[];
+        state.trending = action.payload as Item[];
         console.log("fulfilled payload", action.payload);
       })
       .addCase(getTrendingItems.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getItemById.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(getItemById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.current = action.payload as Item;
+      })
+      .addCase(getItemById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

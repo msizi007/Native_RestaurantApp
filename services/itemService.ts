@@ -1,19 +1,19 @@
 import { supabase } from "@/lib/superbase";
-import { MenuItem } from "@/types/MenuItem";
+import { Item } from "@/types/Item";
 
-export async function getItems(): Promise<MenuItem[] | null> {
-  let { data, error } = await supabase.from("MenuItem").select("*");
+export async function getItemsDB(): Promise<Item[] | null> {
+  let { data, error } = await supabase.from("Item").select("*");
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data as MenuItem[] | null;
+  return data as Item[] | null;
 }
 
-export async function getMenuItemById(id: string): Promise<MenuItem | null> {
+export async function getItemByIdDB(id: string): Promise<Item | null> {
   let { data, error } = await supabase
-    .from("MenuItem")
+    .from("Item")
     .select("*")
     .eq("id", id)
     .single();
@@ -22,12 +22,12 @@ export async function getMenuItemById(id: string): Promise<MenuItem | null> {
     throw new Error(error.message);
   }
 
-  return data as MenuItem | null;
+  return data as Item | null;
 }
 
-export async function addMenuItem(newItem: MenuItem): Promise<MenuItem | null> {
+export async function addItemDB(newItem: Item): Promise<Item | null> {
   const { data, error } = await supabase
-    .from("MenuItem")
+    .from("Item")
     .insert([newItem])
     .select()
     .single();
@@ -37,14 +37,14 @@ export async function addMenuItem(newItem: MenuItem): Promise<MenuItem | null> {
     throw new Error(error.message);
   }
 
-  return data as MenuItem | null;
+  return data as Item | null;
 }
 
-export async function getTrendingItemsDB(): Promise<MenuItem[] | null> {
+export async function getTrendingItemsDB(): Promise<Item[] | null> {
   // We filter where the column 'is_favourite' is true
   console.log(902, "getTrendingItemsDB");
   const { data, error } = await supabase
-    .from("MenuItem")
+    .from("Item")
     .select("*")
     .eq("trending", true);
 
@@ -55,5 +55,5 @@ export async function getTrendingItemsDB(): Promise<MenuItem[] | null> {
     throw new Error(error.message);
   }
 
-  return data as MenuItem[] | null;
+  return data as Item[] | null;
 }

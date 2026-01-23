@@ -5,35 +5,30 @@ import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/Button";
 import CartFAB from "@/components/cartFAB";
 import { addToCart } from "@/features/cartSlice";
-import { getMenuItemById } from "@/services/itemService";
+import { getItemById } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
-import { MenuItem } from "@/types/MenuItem";
+import { Item } from "@/types/Item";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function ItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [item, setItem] = useState<MenuItem | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [item, setItem] = useState<Item | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const { current, loading } = useSelector((state: RootState) => state.item);
 
   useEffect(() => {
-    async function fetchItem() {
-      try {
-        const data = await getMenuItemById(id);
-        setItem(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchItem();
+    dispatch(getItemById(id));
   }, [id]);
 
-  function addToCartHandler(item: MenuItem) {
-    dispatch(addToCart(item));
+  useEffect(() => {
+    if (current) {
+      setItem(current);
+    }
+  }, [current]);
+
+  function addToCartHandler(item: Item) {
+    dispatch(addToCart({ item, userId: Number(id) }));
   }
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
