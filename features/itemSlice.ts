@@ -1,5 +1,6 @@
 import {
   getItemByIdDB,
+  getItemsByIdsDB,
   getItemsDB,
   getTrendingItemsDB,
 } from "@/services/itemService";
@@ -37,9 +38,11 @@ export const getItems = createAsyncThunk(
 
 export const getItemById = createAsyncThunk(
   "item/getItemById",
-  async (id: string, { rejectWithValue }) => {
+  async (id: number, { rejectWithValue }) => {
+    console.log(2001, { id });
     try {
       const item = await getItemByIdDB(id);
+      console.log(2002, { item });
 
       return item ? item : rejectWithValue("Failed to get menu items");
     } catch (error) {
@@ -54,6 +57,19 @@ export const getTrendingItems = createAsyncThunk(
     try {
       console.log(901, "getTrendingItems");
       const items = await getTrendingItemsDB();
+
+      return items ? items : rejectWithValue("Failed to get menu items");
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const getItemsByIds = createAsyncThunk(
+  "item/getItemByIds",
+  async (ids: number[], { rejectWithValue }) => {
+    try {
+      const items = await getItemsByIdsDB(ids);
 
       return items ? items : rejectWithValue("Failed to get menu items");
     } catch (error) {
@@ -101,10 +117,26 @@ const itemSlice = createSlice({
       .addCase(getItemById.fulfilled, (state, action) => {
         state.loading = false;
         state.current = action.payload as Item;
+        console.log("fulfilled payload ITEM", action.payload);
       })
       .addCase(getItemById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        console.log("rejected payload ITEM", action.payload);
+      })
+      .addCase(getItemsByIds.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(getItemsByIds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload as Item[];
+        console.log("fulfilled payload ITEM", action.payload);
+      })
+      .addCase(getItemsByIds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        console.log("rejected payload ITEM", action.payload);
       });
   },
 });

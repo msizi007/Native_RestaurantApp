@@ -1,17 +1,30 @@
-import { createCartItem } from "@/services/cartItemService";
+import {
+  createCartItemDB,
+  getCartItemByIdDB,
+  incrementQuantityDB,
+} from "@/services/cartItemService";
 import { createCart, getCartByUserIdDB } from "@/services/cartService";
+import { Cart } from "@/types/Cart";
 import { CartItem, CartItemPayload } from "@/types/CartItem";
 import { Item } from "@/types/Item";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface CartState {
-  items: CartItem[] | [];
+  items: CartItem[];
+  cartId: number | null;
+  cart: Cart | null;
   total: number;
+  loading: boolean;
+  error: string;
 }
 
 const initialState: CartState = {
   items: [],
+  cart: null,
+  cartId: null,
   total: 0,
+  loading: false,
+  error: "",
 };
 
 export const getCartByUserId = createAsyncThunk(
@@ -19,6 +32,11 @@ export const getCartByUserId = createAsyncThunk(
   async (userId: number, { rejectWithValue }) => {
     try {
       const cart = await getCartByUserIdDB(userId);
+
+      if (!cart) {
+        const newCart = await createCart(userId);
+        return newCart ? newCart : rejectWithValue("Failed to create cart");
+      }
 
       return cart ? cart : rejectWithValue("Failed to get cart");
     } catch (error) {
@@ -35,23 +53,39 @@ export const addToCart = createAsyncThunk(
   ) => {
     try {
       console.log(300, { item, userId });
-      const cart = await getCartByUserIdDB(userId);
+      let cart = await getCartByUserIdDB(userId);
       console.log(301, { cart });
 
+      // if cart does not exist for user then create new cart
       if (!cart) {
         // create new Cart and add CartItem
-        const newCart = await createCart(userId);
-        console.log(303, { newCart });
-        const payload: CartItemPayload = {
-          cartId: newCart!.id!,
-          itemId: item.id!,
-          quantity: 1,
-          totalPrice: item.price,
-        };
-        const newCartItem = await createCartItem(payload);
-        return newCart;
+        cart = await createCart(userId);
+        console.log(303, { cart });
       }
-      return item;
+      const payload: CartItemPayload = {
+        cartId: cart!.id!,
+        itemId: item.id!,
+        quantity: 1,
+        totalPrice: item.price,
+      };
+
+      // if cartItem already exists for this cart and item then increment quantity
+      const existingCartItem = await getCartItemByIdDB(
+        payload.cartId,
+        item.id!,
+      );
+
+      console.log(1001, { existingCartItem });
+      if (existingCartItem) {
+        const updatedCartItem = await incrementQuantityDB(
+          payload.cartId,
+          item.id!,
+        );
+        return updatedCartItem;
+      }
+      const newCartItem = await createCartItemDB(payload);
+      console.log(304, { newCartItem });
+      return newCartItem;
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -61,15 +95,30 @@ export const addToCart = createAsyncThunk(
 export const cartSlice = createSlice({
   name: "cart",
   initialState,
-  reducers: {
-    removeFromCart: (state, action) => {
-      state.items = state.items.filter((item) => item.id !== action.payload.id);
-    },
-    clearCart: (state) => {
-      state.items = [];
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getCartByUserId.fulfilled, (state, action) => {
+        state.cartId = action.payload.id!;
+        state.cart = action.payload as Cart;
+        console.log("Featched cart", action.payload);
+      })
+      .addCase(getCartByUserId.rejected, (state, action) => {
+        state.error = action.payload as string;
+        console.log("Failed to featch cart", action.payload);
+      })
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items.push(action.payload as CartItem);
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(addToCart.pending, (state) => {
+        state.loading = true;
+      });
   },
 });
 
-export const { removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

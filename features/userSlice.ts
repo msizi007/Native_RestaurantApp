@@ -37,8 +37,7 @@ export const registerUser = createAsyncThunk(
 
       console.log("newUser", { newUser });
 
-      if (!newUser) rejectWithValue("Failed to register user");
-      return newUser;
+      return newUser ? newUser : rejectWithValue("Failed to register user");
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -81,9 +80,21 @@ const userSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.current = action.payload as User;
-        console.log("fulfilled payload", action.payload);
+        console.log(900, "sucess: ", action.payload);
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.current = action.payload as User;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

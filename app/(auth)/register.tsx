@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { registerUser } from "@/features/userSlice";
 import { AppDispatch, RootState } from "@/store";
 import { User } from "@/types/User";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setUser } from "@/utils/storage";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
@@ -21,7 +21,6 @@ export default function Register() {
     (state: RootState) => state.user,
   );
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
 
   function onSubmit() {
     const payload: User = {
@@ -48,7 +47,7 @@ export default function Register() {
   useEffect(() => {
     // if user is registerd sucessfully
     if (current) {
-      AsyncStorage.setItem("user", JSON.stringify(current));
+      setUser(current);
       const timeout = setTimeout(() => {
         router.push("/home");
       }, 0);

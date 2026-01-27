@@ -38,6 +38,8 @@ export default function Login() {
       AsyncStorage.setItem("user", JSON.stringify(current));
       // Use replace so they can't 'Go Back' to login after entering the app
       // router.replace("/(tabs)");
+      console.log(410, "Login sucess");
+      router.push("/home");
     }
   }, [current]);
 

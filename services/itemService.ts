@@ -11,7 +11,7 @@ export async function getItemsDB(): Promise<Item[] | null> {
   return data as Item[] | null;
 }
 
-export async function getItemByIdDB(id: string): Promise<Item | null> {
+export async function getItemByIdDB(id: number): Promise<Item | null> {
   let { data, error } = await supabase
     .from("Item")
     .select("*")
@@ -53,6 +53,17 @@ export async function getTrendingItemsDB(): Promise<Item[] | null> {
   if (error) {
     console.error("Error fetching favorites:", error.message);
     throw new Error(error.message);
+  }
+
+  return data as Item[] | null;
+}
+
+export async function getItemsByIdsDB(ids: number[]): Promise<Item[] | null> {
+  const { data, error } = await supabase.from("Item").select("*").in("id", ids);
+
+  if (error) {
+    console.error(error.message);
+    return null;
   }
 
   return data as Item[] | null;

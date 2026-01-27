@@ -33,7 +33,7 @@ export async function createCart(userId: number): Promise<Cart | null> {
     .select()
     .single();
 
-  console.log(304, data, error, userId);
+  console.log(310, data, error, userId);
 
   if (error) {
     throw new Error(error.message);

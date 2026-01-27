@@ -1,17 +1,57 @@
-import { RootState } from "@/store";
+import { getCartItems } from "@/features/cartItemSlice";
+import { getCartByUserId } from "@/features/cartSlice";
+import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
+import { User } from "@/types/User";
+import { getUser } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const CartFAB = () => {
   const router = useRouter();
-  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const dispatch = useDispatch<AppDispatch>();
+  const { cartId, cart, loading } = useSelector(
+    (state: RootState) => state.cart,
+  );
+  const { cartItems } = useSelector(
+    (state: RootState) => state.cartItem,
+  );
+  const [user, setUser] = useState<User | null>(null);
 
   // Calculate total quantity of items in the cart
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  console.log(1000, { user, cart, cartItems, itemCount });
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUser = await getUser();
+        console.log(1001, storedUser);
+        setUser(storedUser);
+      } catch (error) {
+        console.error("Failed to load user:", error);
+      }
+    };
+    loadData();
+    console.log("user loaded");
+  }, []);
+
+  useEffect(() => {
+    console.log("STEP 2..");
+    if (user) {
+      dispatch(getCartByUserId(user.id!));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (cartId) {
+      dispatch(getCartItems(cartId));
+    }
+  }, [cartId, loading]);
 
   return (
     <TouchableOpacity
