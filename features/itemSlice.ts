@@ -71,6 +71,8 @@ export const getItemsByIds = createAsyncThunk(
     try {
       const items = await getItemsByIdsDB(ids);
 
+      console.log(4002, { items });
+
       return items ? items : rejectWithValue("Failed to get menu items");
     } catch (error) {
       return rejectWithValue(error);

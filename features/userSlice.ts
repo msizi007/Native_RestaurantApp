@@ -1,4 +1,4 @@
-import { addUserDB, loginUserDB } from "@/services/userService";
+import { addUserDB, loginUserDB, updateUserDB } from "@/services/userService";
 import { validateEmail } from "@/utils/validator";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { LoginCredentials, User } from "./../types/User";
@@ -67,6 +67,19 @@ export const loginUser = createAsyncThunk(
   },
 );
 
+export const updateUser = createAsyncThunk(
+  "user/update",
+  async (user: User, { rejectWithValue }) => {
+    try {
+      const updatedUser = await updateUserDB(user);
+      console.log(7003, { updatedUser });
+      return updatedUser
+        ? updatedUser
+        : rejectWithValue("Failed to update user");
+    } catch (error) {}
+  },
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -95,6 +108,18 @@ const userSlice = createSlice({
         state.current = action.payload as User;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = "";
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.current = action.payload as User;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

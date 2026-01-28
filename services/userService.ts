@@ -58,3 +58,20 @@ export async function loginUserDB(
 
   return data as User | null;
 }
+
+export async function updateUserDB(user: User): Promise<User | null> {
+  const { data, error } = await supabase
+    .from("Users")
+    .update(user)
+    .eq("id", user.id)
+    .select()
+    .maybeSingle();
+
+  console.log(7004, { data, error });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as User | null;
+}

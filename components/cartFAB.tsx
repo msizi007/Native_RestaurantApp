@@ -3,7 +3,7 @@ import { getCartByUserId } from "@/features/cartSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
 import { User } from "@/types/User";
-import { getUser } from "@/utils/storage";
+import { getLocalUser } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ const CartFAB = () => {
   const { cartId, cart, loading } = useSelector(
     (state: RootState) => state.cart,
   );
-  const { cartItems } = useSelector(
+  const { cartItems, current } = useSelector(
     (state: RootState) => state.cartItem,
   );
   const [user, setUser] = useState<User | null>(null);
@@ -29,7 +29,7 @@ const CartFAB = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const storedUser = await getUser();
+        const storedUser = await getLocalUser();
         console.log(1001, storedUser);
         setUser(storedUser);
       } catch (error) {
@@ -51,7 +51,7 @@ const CartFAB = () => {
     if (cartId) {
       dispatch(getCartItems(cartId));
     }
-  }, [cartId, loading]);
+  }, [cartId, loading, current]);
 
   return (
     <TouchableOpacity

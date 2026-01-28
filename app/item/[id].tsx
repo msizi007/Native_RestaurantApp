@@ -9,8 +9,8 @@ import { getItemById } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
 import { Item } from "@/types/Item";
-import { getUser } from "@/utils/storage";
 import { useDispatch, useSelector } from "react-redux";
+import { getLocalUser } from "@/utils/storage";
 
 export default function ItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,7 +23,7 @@ export default function ItemDetailScreen() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const storedUser = await getUser();
+        const storedUser = await getLocalUser();
         if (storedUser?.id) {
           setUserId(storedUser.id);
         }

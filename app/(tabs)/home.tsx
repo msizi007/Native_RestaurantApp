@@ -7,14 +7,7 @@ import { AppDispatch, RootState } from "@/store";
 import { iLargeBurger, iPizza2, iWine1, iWolfLamb } from "@/types/Globals";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
@@ -128,13 +121,6 @@ export default function Home() {
             />
           ))
         }
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <TouchableOpacity key={`grid-${item}`} style={styles.gridItem}>
-            <View style={styles.imagePlaceholder} />
-            <View style={styles.textPlaceholder} />
-            <View style={[styles.textPlaceholder, { width: "60%" }]} />
-          </TouchableOpacity>
-        ))}
       </View>
     </ScrollView>
   );

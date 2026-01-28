@@ -60,6 +60,9 @@ export async function getTrendingItemsDB(): Promise<Item[] | null> {
 
 export async function getItemsByIdsDB(ids: number[]): Promise<Item[] | null> {
   const { data, error } = await supabase.from("Item").select("*").in("id", ids);
+  // SELECT * FROM Item WHERE id IN (1, 2, 3);
+
+  console.log(4001, { data, error });
 
   if (error) {
     console.error(error.message);

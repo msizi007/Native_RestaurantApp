@@ -19,6 +19,15 @@ export async function createCartItemDB(
   return data as CartItem | null;
 }
 
+export const deleteCartItemDB = async (id: number): Promise<boolean> => {
+  const { error } = await supabase.from("CartItem").delete().eq("id", id);
+  if (error) {
+    console.error(error.message);
+    return false;
+  }
+  return true;
+};
+
 export async function getCartItemsDB(
   cartId: number,
 ): Promise<CartItem[] | null> {
@@ -26,6 +35,8 @@ export async function getCartItemsDB(
     .from("CartItem")
     .select("*")
     .eq("cartId", cartId);
+
+  // SELECT * FROM Item WHERE cartId = ?;
 
   if (error) {
     throw new Error(error.message);

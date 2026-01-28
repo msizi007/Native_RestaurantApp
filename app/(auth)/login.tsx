@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { loginUser } from "@/features/userSlice";
 import { AppDispatch, RootState } from "@/store";
 import { LoginCredentials } from "@/types/User";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setLocalUser } from "@/utils/storage";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput } from "react-native";
@@ -35,7 +35,8 @@ export default function Login() {
 
   useEffect(() => {
     if (current) {
-      AsyncStorage.setItem("user", JSON.stringify(current));
+      console.log("CURRENT USER", current);
+      setLocalUser(current);
       // Use replace so they can't 'Go Back' to login after entering the app
       // router.replace("/(tabs)");
       console.log(410, "Login sucess");

@@ -1,5 +1,6 @@
 import {
   decrementQuantityDB,
+  deleteCartItemDB,
   getCartItemsDB,
   incrementQuantityDB,
 } from "@/services/cartItemService";
@@ -30,6 +31,19 @@ export const getCartItems = createAsyncThunk(
       return cartItems
         ? { cartItems, cartId }
         : rejectWithValue("Failed to get cart items");
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const removeCartItem = createAsyncThunk(
+  "cartItem/removeCartItem",
+  async (id: number, { rejectWithValue }) => {
+    try {
+      const isDeleted = await deleteCartItemDB(id);
+
+      return isDeleted ? id : rejectWithValue("Failed to delete cart item");
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -83,7 +97,9 @@ export const cartItemSlice = createSlice({
           cartId: number;
         };
         state.cartId = cartId;
-        state.cartItems = cartItems;
+        //console.log(5000, { cartItems });
+        // state.cartItems = cartItems.reverse(); // #!
+        state.cartItems = cartItems.sort((a, b) => a.itemId - b.itemId);
       })
       .addCase(getCartItems.rejected, (state, action) => {
         state.error = action.payload as string;
@@ -98,6 +114,13 @@ export const cartItemSlice = createSlice({
         state.current = action.payload as CartItem;
       })
       .addCase(decrementItemQuantity.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+      .addCase(removeCartItem.fulfilled, (state, action) => {
+        const id = action.payload as number;
+        state.cartItems = state.cartItems.filter((item) => item.id !== id);
+      })
+      .addCase(removeCartItem.rejected, (state, action) => {
         state.error = action.payload as string;
       });
   },

@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { registerUser } from "@/features/userSlice";
 import { AppDispatch, RootState } from "@/store";
 import { User } from "@/types/User";
-import { setUser } from "@/utils/storage";
+import { setLocalUser } from "@/utils/storage";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
@@ -47,7 +47,7 @@ export default function Register() {
   useEffect(() => {
     // if user is registerd sucessfully
     if (current) {
-      setUser(current);
+      setLocalUser(current);
       const timeout = setTimeout(() => {
         router.push("/home");
       }, 0);

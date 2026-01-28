@@ -1,6 +1,8 @@
+import { User } from "@/types/User";
+import { getLocalUser, removeLocalUser } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -11,6 +13,28 @@ import {
 
 const Profile = () => {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUser = await getLocalUser();
+        console.log(1001, storedUser);
+        setUser(storedUser);
+      } catch (error) {
+        console.error("Failed to load user:", error);
+      }
+    };
+    loadData();
+    console.log("user loaded");
+  }, []);
+
+  console.log(7000, { user });
+
+  function logout() {
+    removeLocalUser();
+    router.push("/login");
+  }
 
   // Helper component for the menu rows
   const MenuItem = ({
@@ -33,60 +57,68 @@ const Profile = () => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatarPlaceholder}>
-            <Ionicons name="person" size={60} color="#CCC" />
+      {user != null ? (
+        <>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <View style={styles.avatarContainer}>
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={60} color="#CCC" />
+              </View>
+              <TouchableOpacity style={styles.editBadge}>
+                <Ionicons name="camera" size={16} color="white" />
+              </TouchableOpacity>
+            </View>
+
+            <Text
+              style={styles.userName}
+            >{`${user.firstName} ${user.lastName}`}</Text>
+            <Text style={styles.userEmail}>{user.email}</Text>
           </View>
-          <TouchableOpacity style={styles.editBadge}>
-            <Ionicons name="camera" size={16} color="white" />
+
+          {/* Account Settings Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Account</Text>
+            <View style={styles.card}>
+              <MenuItem
+                icon="person-outline"
+                title="Edit Profile"
+                onPress={() => router.push("/profile/edit-profile")}
+              />
+              <View style={styles.divider} />
+              <MenuItem
+                icon="lock-closed-outline"
+                title="Change Password"
+                onPress={() => router.push("/profile/change-password")}
+              />
+            </View>
+          </View>
+
+          {/* Preferences Section */}
+          <View style={styles.section}>
+            <View style={styles.card}>
+              <MenuItem
+                icon="time-outline"
+                title="Order History"
+                onPress={() => router.push("/profile/order-history")}
+              />
+              <View style={styles.divider} />
+              <MenuItem
+                icon="settings-outline"
+                title="App Preferences"
+                onPress={() => router.push("/profile/preferences")}
+              />
+            </View>
+          </View>
+
+          {/* Logout Button */}
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+            <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
-        </View>
-
-        <Text style={styles.userName}>My Profile</Text>
-        <Text style={styles.userEmail}>Email.email.com</Text>
-      </View>
-
-      {/* Account Settings Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
-        <View style={styles.card}>
-          <MenuItem
-            icon="person-outline"
-            title="Edit Profile"
-            onPress={() => router.push("/profile/edit-profile")}
-          />
-          <View style={styles.divider} />
-          <MenuItem
-            icon="lock-closed-outline"
-            title="Change Password"
-            onPress={() => router.push("/profile/change-password")}
-          />
-        </View>
-      </View>
-
-      {/* Preferences Section */}
-      <View style={styles.section}>
-        <View style={styles.card}>
-          <MenuItem
-            icon="time-outline"
-            title="Order History"
-            onPress={() => router.push("/profile/order-history")}
-          />
-          <View style={styles.divider} />
-          <MenuItem
-            icon="settings-outline"
-            title="App Preferences"
-            onPress={() => router.push("/profile/preferences")}
-          />
-        </View>
-      </View>
-
-      {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton}>
-        <Text style={styles.logoutText}>Log Out</Text>
-      </TouchableOpacity>
+        </>
+      ) : (
+        <Text>Fobidden: You are not logged in</Text>
+      )}
     </ScrollView>
   );
 };
