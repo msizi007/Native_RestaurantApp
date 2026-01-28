@@ -1,10 +1,15 @@
 import CartItem from "@/components/CartItem";
 import { Checkout } from "@/components/Checkout";
 import { getItemsByIds } from "@/features/itemSlice";
+import { createOrder } from "@/features/orderSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
 import { Item } from "@/types/Item";
-import React, { useEffect } from "react";
+import { Order } from "@/types/Order";
+import { User } from "@/types/User";
+import { getLocalUser } from "@/utils/storage";
+import { formatToSAST } from "@/utils/time";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   ScrollView,
@@ -28,6 +33,22 @@ const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [showPayment, setShowPayment] = React.useState(false);
   const { popup } = usePaystack();
+  const [user, setUser] = useState<User | null>(null);
+  const [payKey, setPayKey] = useState(0);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUser = await getLocalUser();
+        if (storedUser) {
+          setUser(storedUser);
+        }
+      } catch (err) {
+        console.error("Failed to load user:", err);
+      }
+    };
+    loadData();
+  }, []);
 
   useEffect(() => {
     const fetchCartDetails = async () => {
@@ -54,35 +75,46 @@ const Cart = () => {
     }
   }, [cartChanges]);
 
-  function calcTotalPrice(items: Item[]): number {
+  function calcTotalPrice(items: Item[] | null): number {
+    if (!items || !cartItems) return 0; // Guard against null
     let total = 0;
-
-    if (items && cartItems) {
-      for (let i = 0; i < items.length; i++) {
-        if (cartItems[i]) {
-          total += items[i].price * cartItems[i].quantity;
-        }
+    for (let i = 0; i < items.length; i++) {
+      // Also check if the specific item exists in the array
+      if (items[i]) {
+        total += items[i].price * (cartItems[i]?.quantity || 0);
       }
     }
     return total;
   }
 
-  console.log(2000, { cartItems, current, items, cartChanges });
+  // console.log(2000, { cartItems, user, current, items, cartChanges });
 
   const handlePay = () => {
+    if (!user || !user.id) {
+      alert("User profile not loaded. Please log in again.");
+      return;
+    }
+    const payload: Order = {
+      cartId: cartId!,
+      userId: user!.id!,
+      status: "Pending",
+      created_at: formatToSAST(new Date().toISOString()),
+    };
+    // console.log(8000, { payload });
     popup.checkout({
-      email: "customer@example.com",
-      amount: calcTotalPrice(items!), // Amount in cents/kobo
+      email: user.email,
+      amount: calcTotalPrice(items),
       onSuccess: (res) => {
         console.log("Success:", res);
-        // Dispatch your Redux "clear cart" action here
+        dispatch(createOrder(payload));
+        setPayKey((prev) => prev + 1);
       },
       onCancel: () => console.log("User cancelled"),
     });
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} key={payKey}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {cartItems &&
           items &&

@@ -48,8 +48,6 @@ export async function getTrendingItemsDB(): Promise<Item[] | null> {
     .select("*")
     .eq("trending", true);
 
-  console.log(903, "data", data, "error", error);
-
   if (error) {
     console.error("Error fetching favorites:", error.message);
     throw new Error(error.message);

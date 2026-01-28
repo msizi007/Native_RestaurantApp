@@ -93,7 +93,6 @@ const itemSlice = createSlice({
       .addCase(getItems.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload as Item[];
-        console.log("fulfilled payload", action.payload);
       })
       .addCase(getItems.rejected, (state, action) => {
         state.loading = false;
@@ -106,7 +105,6 @@ const itemSlice = createSlice({
       .addCase(getTrendingItems.fulfilled, (state, action) => {
         state.loading = false;
         state.trending = action.payload as Item[];
-        console.log("fulfilled payload", action.payload);
       })
       .addCase(getTrendingItems.rejected, (state, action) => {
         state.loading = false;
@@ -119,7 +117,6 @@ const itemSlice = createSlice({
       .addCase(getItemById.fulfilled, (state, action) => {
         state.loading = false;
         state.current = action.payload as Item;
-        console.log("fulfilled payload ITEM", action.payload);
       })
       .addCase(getItemById.rejected, (state, action) => {
         state.loading = false;
@@ -133,12 +130,10 @@ const itemSlice = createSlice({
       .addCase(getItemsByIds.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload as Item[];
-        console.log("fulfilled payload ITEM", action.payload);
       })
       .addCase(getItemsByIds.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        console.log("rejected payload ITEM", action.payload);
       });
   },
 });

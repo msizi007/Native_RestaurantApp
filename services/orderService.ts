@@ -1,43 +1,75 @@
 import { supabase } from "@/lib/superbase";
-import { Cart } from "@/types/Cart";
+import { Order, OrderStatus } from "@/types/Order";
 
-export async function getCartByUserIdDB(id: number): Promise<Cart | null> {
-  // 1. Query the Cart table specifically for the userId
-  // We use .maybeSingle() instead of .single() to avoid throwing an error if the cart is empty
+export async function getOrdersByUserIdDB(
+  userId: number,
+): Promise<Order[] | null> {
   const { data, error } = await supabase
-    .from("Cart")
+    .from("Order")
     .select("*")
-    .eq("userId", id)
-    .maybeSingle();
+    .eq("userId", userId);
 
-  console.log(302, data, error);
-
-  // 2. Handle actual database connection errors
   if (error) {
-    console.error("Database error:", error.message);
     throw new Error(error.message);
   }
 
-  // 3. Logic: If no data exists (cart is empty/missing), return null
-  if (!data) {
-    return null;
+  return data as Order[] | null;
+}
+
+export async function getOrderByIdDB(id: number): Promise<Order | null> {
+  const { data, error } = await supabase
+    .from("Order")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
   }
 
-  // 4. Return the found cart
-  return data as Cart;
+  return data as Order | null;
 }
-export async function createCart(userId: number): Promise<Cart | null> {
+
+export async function updateOrderStatusDB(id: number, status: OrderStatus) {
   const { data, error } = await supabase
-    .from("Cart")
-    .insert({ userId, status: "Pending" })
+    .from("Order")
+    .update({ status })
+    .eq("id", id)
     .select()
     .single();
 
-  console.log(310, data, error, userId);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Order | null;
+}
+
+export async function createOrderDB(order: Order): Promise<Order | null> {
+  const { data, error } = await supabase
+    .from("Order")
+    .insert([order])
+    .select()
+    .single();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data as Cart | null;
+  return data as Order | null;
+}
+
+export async function deleteOrderDB(id: number): Promise<Order | null> {
+  const { data, error } = await supabase
+    .from("Order")
+    .delete()
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Order | null;
 }

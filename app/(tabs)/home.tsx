@@ -43,12 +43,6 @@ export default function Home() {
     dispatch(getTrendingItems());
   }, []);
 
-  useEffect(() => {
-    console.log("category Images", categoryImages);
-    console.log("trending Images", trendingImages);
-    console.log("trending items", trending);
-  }, [categoryImages, trendingImages, trending]);
-
   const handlePress = (itemId: string) => {
     router.push({
       pathname: "/item/[id]",

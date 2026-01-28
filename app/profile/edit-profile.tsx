@@ -61,6 +61,10 @@ export default function EditProfile() {
 
   // --- Handlers ---
   const onUpdateProfile = () => {
+    if (!isEditable) {
+      alert("No changes detected.");
+      return;
+    }
     if (!firstName || !lastName || !email || !phoneNumber || !address) {
       setError("All fields are required");
       return;
@@ -77,6 +81,8 @@ export default function EditProfile() {
     };
     console.log(7002, { payload });
     dispatch(updateUser(payload));
+    setIsEditable(false);
+    alert("Profile updated successfully!");
   };
 
   return (
@@ -92,6 +98,11 @@ export default function EditProfile() {
       <TouchableOpacity
         onPress={() => {
           (setIsEditable(!isEditable), console.log(isEditable));
+        }}
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
         }}
       >
         <Ionicons
