@@ -8,7 +8,6 @@ import { Item } from "@/types/Item";
 import { Order } from "@/types/Order";
 import { User } from "@/types/User";
 import { getLocalUser } from "@/utils/storage";
-import { formatToSAST } from "@/utils/time";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -98,7 +97,7 @@ const Cart = () => {
       cartId: cartId!,
       userId: user!.id!,
       status: "Pending",
-      created_at: formatToSAST(new Date().toISOString()),
+      totalPrice: calcTotalPrice(items),
     };
     // console.log(8000, { payload });
     popup.checkout({

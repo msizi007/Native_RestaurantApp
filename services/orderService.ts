@@ -1,6 +1,14 @@
 import { supabase } from "@/lib/superbase";
 import { Order, OrderStatus } from "@/types/Order";
 
+export async function getAllOrdersDB(): Promise<Order[] | null> {
+  const { data, error } = await supabase.from("Order").select("*");
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data as Order[] | null;
+}
+
 export async function getOrdersByUserIdDB(
   userId: number,
 ): Promise<Order[] | null> {
@@ -73,3 +81,18 @@ export async function deleteOrderDB(id: number): Promise<Order | null> {
 
   return data as Order | null;
 }
+
+export const approveOrderDB = async (id: number): Promise<Order | null> => {
+  const { data, error } = await supabase
+    .from("Order")
+    .update({ status: "Delivered" })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Order | null;
+};

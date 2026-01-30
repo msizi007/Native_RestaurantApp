@@ -1,6 +1,8 @@
 import {
+  approveOrderDB,
   createOrderDB,
   deleteOrderDB,
+  getAllOrdersDB,
   getOrderByIdDB,
   getOrdersByUserIdDB,
 } from "@/services/orderService";
@@ -21,8 +23,21 @@ const initialState: orderState = {
   error: "",
 };
 
+export const getAllOrders = createAsyncThunk(
+  "order/getAllOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const orders = await getAllOrdersDB();
+
+      return orders ? orders : rejectWithValue("Failed to get menu items");
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 export const getOrdersByUserId = createAsyncThunk(
-  "order/getOrderByUserId",
+  "order/getOrdersByUserId",
   async (userId: number, { rejectWithValue }) => {
     try {
       const order = await getOrdersByUserIdDB(userId);
@@ -35,7 +50,7 @@ export const getOrdersByUserId = createAsyncThunk(
 );
 
 export const getOrderById = createAsyncThunk(
-  "order/getOrderByUserId",
+  "order/getOrderById",
   async (orderId: number, { rejectWithValue }) => {
     try {
       const order = await getOrderByIdDB(orderId);
@@ -75,12 +90,36 @@ export const deleteOrder = createAsyncThunk(
   },
 );
 
+export const approveOrder = createAsyncThunk(
+  "order/approveOrder",
+  async (orderId: number, { rejectWithValue }) => {
+    try {
+      const isDeleted = await approveOrderDB(orderId);
+
+      return isDeleted ? orderId : rejectWithValue("Failed to get menu items");
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 export const orderSlice = createSlice({
   name: "order",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(getAllOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getAllOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload;
+      })
+      .addCase(getAllOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(getOrdersByUserId.pending, (state) => {
         state.loading = true;
       })
@@ -127,6 +166,26 @@ export const orderSlice = createSlice({
       })
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
+      })
+      .addCase(approveOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.orders) {
+          state.orders = state.orders.map((order) => {
+            if (order.id === action.payload) {
+              return { ...order, status: "Delivered" };
+            }
+            return order;
+          });
+        }
+      })
+      .addCase(approveOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(approveOrder.pending, (state) => {
+        state.loading = true;
       });
   },
 });
+
+export default orderSlice.reducer;

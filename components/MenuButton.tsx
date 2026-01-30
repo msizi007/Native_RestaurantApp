@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 interface Props {
   title: string;
   icon: any;
+  onPress: () => void;
 }
 
 /*
@@ -15,7 +16,7 @@ interface Props {
 
 export const MenuBtn = (props: Props) => {
   return (
-    <TouchableOpacity style={styles.menuItem}>
+    <TouchableOpacity style={styles.menuItem} onPress={props.onPress}>
       <Ionicons name={props.icon} size={28} color="#FF6347" />
       <Text style={styles.menuText}>{props.title}</Text>
     </TouchableOpacity>

@@ -5,5 +5,6 @@ export interface Order {
   userId: number;
   cartId: number;
   status: OrderStatus;
-  created_at?: string;
+  created_at?: Date;
+  totalPrice: number;
 }

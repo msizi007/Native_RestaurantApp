@@ -14,7 +14,7 @@ export default function Login() {
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const { current, loading, error } = useSelector(
+  const { current, loading, error, userType } = useSelector(
     (state: RootState) => state.user,
   );
 
@@ -34,15 +34,19 @@ export default function Login() {
   }
 
   useEffect(() => {
+    if (userType === "Admin") router.replace("/admin/dashboard");
+
     if (current) {
       console.log("CURRENT USER", current);
       setLocalUser(current);
       // Use replace so they can't 'Go Back' to login after entering the app
       // router.replace("/(tabs)");
-      console.log(410, "Login sucess");
+
+      console.log(9000, { current, userType });
+
       router.push("/home");
     }
-  }, [current]);
+  }, [current, userType]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
