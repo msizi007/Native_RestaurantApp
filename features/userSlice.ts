@@ -48,7 +48,7 @@ export const registerUser = createAsyncThunk(
       console.log("newUser", { newUser });
 
       return newUser ? newUser : rejectWithValue("Failed to register user");
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(error);
     }
   },
@@ -88,8 +88,9 @@ export const loginUser = createAsyncThunk(
       return user
         ? { user, userType: "User" }
         : rejectWithValue("Failed to login user");
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      const message = error.message || "An unexpected error occurred";
+      return rejectWithValue(message);
     }
   },
 );
@@ -103,8 +104,9 @@ export const updateUser = createAsyncThunk(
       return updatedUser
         ? updatedUser
         : rejectWithValue("Failed to update user");
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      const message = error.message || "An unexpected error occurred";
+      return rejectWithValue(message);
     }
   },
 );
@@ -115,8 +117,9 @@ export const getUsersByIds = createAsyncThunk(
     try {
       const user = await getUsersByIdsDB(ids);
       return user ? user : rejectWithValue("Failed to get users");
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      const message = error.message || "An unexpected error occurred";
+      return rejectWithValue(message);
     }
   },
 );
@@ -127,8 +130,9 @@ export const getAllUsers = createAsyncThunk(
     try {
       const users = await getAllUsersDB();
       return users ? users : rejectWithValue("Failed to get users");
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      const message = error.message || "An unexpected error occurred";
+      return rejectWithValue(message);
     }
   },
 );
@@ -150,6 +154,7 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
+        console.log(404, action.payload);
         state.error = action.payload as string;
       })
       .addCase(loginUser.pending, (state) => {

@@ -53,15 +53,20 @@ export async function getUserByIdDB(id: number): Promise<User | null> {
 }
 
 export async function addUserDB(user: User): Promise<User | null> {
+  console.log(101, user);
   const { data, error } = await supabase
     .from("Users")
     .insert([user])
     .select()
     .single();
-  console.log("data", data, "error", error);
 
   if (error) {
     throw new Error(error.message);
+  }
+  console.log("data", data, "error", error);
+
+  if (error) {
+    throw new Error(error);
   }
 
   return data as User | null;
