@@ -115,8 +115,8 @@ export const getUsersByIds = createAsyncThunk(
   "user/getUsersByIds",
   async (ids: number[], { rejectWithValue }) => {
     try {
-      const user = await getUsersByIdsDB(ids);
-      return user ? user : rejectWithValue("Failed to get users");
+      const users = await getUsersByIdsDB(ids);
+      return users ? users : rejectWithValue("Failed to get users");
     } catch (error: any) {
       const message = error.message || "An unexpected error occurred";
       return rejectWithValue(message);
@@ -198,7 +198,7 @@ const userSlice = createSlice({
       })
       .addCase(getUsersByIds.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload as User[];
+        state.users = action.payload;
       })
       .addCase(getUsersByIds.rejected, (state, action) => {
         state.loading = false;

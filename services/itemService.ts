@@ -11,7 +11,7 @@ export async function getItemsDB(): Promise<Item[] | null> {
   return data as Item[] | null;
 }
 
-export async function getItemByIdDB(id: number): Promise<Item | null> {
+export async function getItemByIdDB(id: string | number): Promise<Item | null> {
   let { data, error } = await supabase
     .from("Item")
     .select("*")
@@ -68,4 +68,36 @@ export async function getItemsByIdsDB(ids: number[]): Promise<Item[] | null> {
   }
 
   return data as Item[] | null;
+}
+
+export async function deleteItemDB(id: number): Promise<Item | null> {
+  const { data, error } = await supabase
+    .from("Item")
+    .delete()
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Item | null;
+}
+
+export async function updateItemDB(item: Item): Promise<Item | null> {
+  const { data, error } = await supabase
+    .from("Item")
+    .update(item)
+    .eq("id", item.id)
+    .select()
+    .single();
+
+  console.log(222, { data, error });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Item | null;
 }
