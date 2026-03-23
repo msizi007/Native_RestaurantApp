@@ -41,10 +41,8 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    console.log("RECENT ORDERS CHANGED", { recentOrders });
     if (recentOrders.length > 0) {
       const ids = recentOrders.map((order) => order.userId);
-      console.log("DISPATCHING FOR RECENT USERS", { ids });
       dispatch(getUsersByIds(recentOrders.map((order) => order.userId)));
     }
   }, [recentOrders]);
@@ -70,7 +68,6 @@ export default function AdminDashboard() {
     }
   }, [orders]);
 
-  console.log("DASHBOARD...");
 
   function logout() {
     removeLocalUser();

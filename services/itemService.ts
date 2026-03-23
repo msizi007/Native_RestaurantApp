@@ -31,7 +31,6 @@ export async function addItemDB(newItem: Item): Promise<Item | null> {
     .insert([newItem])
     .select()
     .single();
-  console.log("data", data, "error", error);
 
   if (error) {
     throw new Error(error.message);
@@ -42,7 +41,6 @@ export async function addItemDB(newItem: Item): Promise<Item | null> {
 
 export async function getTrendingItemsDB(): Promise<Item[] | null> {
   // We filter where the column 'is_favourite' is true
-  console.log(902, "getTrendingItemsDB");
   const { data, error } = await supabase
     .from("Item")
     .select("*")
@@ -59,8 +57,6 @@ export async function getTrendingItemsDB(): Promise<Item[] | null> {
 export async function getItemsByIdsDB(ids: number[]): Promise<Item[] | null> {
   const { data, error } = await supabase.from("Item").select("*").in("id", ids);
   // SELECT * FROM Item WHERE id IN (1, 2, 3);
-
-  console.log(4001, { data, error });
 
   if (error) {
     console.error(error.message);
@@ -93,7 +89,6 @@ export async function updateItemDB(item: Item): Promise<Item | null> {
     .select()
     .single();
 
-  console.log(222, { data, error });
 
   if (error) {
     throw new Error(error.message);

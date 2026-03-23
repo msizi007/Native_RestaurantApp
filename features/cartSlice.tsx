@@ -52,15 +52,12 @@ export const addToCart = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      console.log(300, { item, userId });
       let cart = await getCartByUserIdDB(userId);
-      console.log(301, { cart });
 
       // if cart does not exist for user then create new cart
       if (!cart) {
         // create new Cart and add CartItem
         cart = await createCart(userId);
-        console.log(303, { cart });
       }
       const payload: CartItemPayload = {
         cartId: cart!.id!,
@@ -75,7 +72,6 @@ export const addToCart = createAsyncThunk(
         item.id!,
       );
 
-      console.log(1001, { existingCartItem });
       if (existingCartItem) {
         const updatedCartItem = await incrementQuantityDB(
           payload.cartId,
@@ -84,7 +80,6 @@ export const addToCart = createAsyncThunk(
         return updatedCartItem;
       }
       const newCartItem = await createCartItemDB(payload);
-      console.log(304, { newCartItem });
       return newCartItem;
     } catch (error) {
       return rejectWithValue(error);
@@ -101,11 +96,9 @@ export const cartSlice = createSlice({
       .addCase(getCartByUserId.fulfilled, (state, action) => {
         state.cartId = action.payload.id!;
         state.cart = action.payload as Cart;
-        console.log("Featched cart", action.payload);
       })
       .addCase(getCartByUserId.rejected, (state, action) => {
         state.error = action.payload as string;
-        console.log("Failed to featch cart", action.payload);
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;

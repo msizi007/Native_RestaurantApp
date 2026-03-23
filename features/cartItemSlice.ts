@@ -56,7 +56,6 @@ export const incrementItemQuantity = createAsyncThunk(
     { cartId, itemId }: { cartId: number; itemId: number },
     { rejectWithValue },
   ) => {
-    console.log(3000, { cartId, itemId });
     try {
       const updatedCartItem = await incrementQuantityDB(cartId, itemId);
       return updatedCartItem
@@ -97,8 +96,6 @@ export const cartItemSlice = createSlice({
           cartId: number;
         };
         state.cartId = cartId;
-        //console.log(5000, { cartItems });
-        // state.cartItems = cartItems.reverse(); // #!
         state.cartItems = cartItems.sort((a, b) => a.itemId - b.itemId);
       })
       .addCase(getCartItems.rejected, (state, action) => {

@@ -10,7 +10,6 @@ export async function createCartItemDB(
     .select()
     .single();
 
-  console.log(305, { data, error });
 
   if (error) {
     throw new Error(error.message);
@@ -68,10 +67,8 @@ export async function incrementQuantityDB(
   itemId: number,
 ): Promise<CartItem | null> {
   // 1. Get the current quantity first
-  console.log("INCREMENTING QUANTITY");
   const existingItem = await getCartItemByIdDB(cartId, itemId);
 
-  console.log("EXISTING ITEM", existingItem);
 
   if (!existingItem) return null;
 
@@ -83,7 +80,6 @@ export async function incrementQuantityDB(
     .select("*")
     .single();
 
-  console.log(306, { data, error });
 
   if (error) throw new Error(error.message);
 
@@ -95,10 +91,8 @@ export async function decrementQuantityDB(
   itemId: number,
 ): Promise<CartItem | null> {
   // 1. Get the current quantity first
-  console.log("INCREMENTING QUANTITY");
   const existingItem = await getCartItemByIdDB(cartId, itemId);
 
-  console.log("EXISTING ITEM", existingItem);
 
   if (!existingItem) return null;
 
@@ -110,7 +104,6 @@ export async function decrementQuantityDB(
     .select("*")
     .single();
 
-  console.log(306, { data, error });
 
   if (error) throw new Error(error.message);
 

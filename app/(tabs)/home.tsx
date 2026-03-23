@@ -1,17 +1,15 @@
 import CartFAB from "@/components/cartFAB";
 import MenuItem from "@/components/MenuItem";
-import Promo from "@/components/Promo";
+import { addToCart } from "@/features/cartSlice";
 import { getCategoryImages, getTrendingImages } from "@/features/imageSlice";
 import { getTrendingItems } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
-import { iLargeBurger, iPizza2, iWine1, iWolfLamb } from "@/types/Globals";
+import { Colors } from "@/types/Colors";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-
-const { width } = Dimensions.get("window");
-const COLUMN_WIDTH = width / 2 - 20; // 2 columns with padding
 
 const categories = [
   "Burger & Chips",
@@ -22,13 +20,6 @@ const categories = [
   "Pizza",
 ].sort();
 
-const MENU = [
-  { id: 1, img: iPizza2, text: "Pizza", price: "R 144.99" },
-  { id: 2, img: iWine1, text: "Wine", price: "R 149.99" },
-  { id: 3, img: iLargeBurger, text: "Burger (Large)", price: "R 59.99" },
-  { id: 4, img: iWolfLamb, text: "Wolf Lamb", price: "R 119.99" },
-];
-
 export default function Home() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -36,6 +27,7 @@ export default function Home() {
     (state: RootState) => state.image,
   );
   const { trending } = useSelector((state: RootState) => state.item);
+  const { current } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     dispatch(getCategoryImages());
@@ -51,12 +43,22 @@ export default function Home() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 20 }}
-    >
+    // Inside your Home return...
+    <ScrollView style={styles.container}>
       <CartFAB />
-      <Promo />
+      <View style={styles.header}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={20} color="#888" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Type a dish or cuisine"
+            placeholderTextColor="#AAA"
+            selectionColor="#E67E22" // Matches the orange theme from the image
+            returnKeyType="search"
+            // onChangeText={(text) => handleSearch(text)} // Add your search logic here
+          />
+        </View>
+      </View>
 
       <Text style={styles.sectionTitle}>Food Categories</Text>
       <ScrollView
@@ -64,149 +66,122 @@ export default function Home() {
         showsHorizontalScrollIndicator={false}
         style={styles.horizontalScroll}
       >
-        {/* Menu Items */}
-        {categoryImages &&
-          categories.map((category, i) => (
-            <MenuItem
-              key={i}
-              image={{
-                uri: categoryImages[i].publicUrl!,
-              }}
-              text={category}
-              textStyle={styles.menuText}
-            />
-          ))}
+        {categories.map((category, i) => (
+          <MenuItem
+            key={i}
+            variant="category"
+            image={{ uri: categoryImages?.[i]?.publicUrl }}
+            text={category}
+          />
+        ))}
       </ScrollView>
 
-      <Text style={styles.sectionTitle}>Trending This Week</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.horizontalScroll}
-      >
-        {/* Trending Items */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Most Popular</Text>
+        <Text style={styles.viewMore}>View more {">"}</Text>
+      </View>
+
+      <View style={styles.gridContainer}>
         {trending &&
           trending.map((item) => (
             <MenuItem
               key={item.id}
+              variant="card"
               image={{ uri: item.imageUrl }}
+              text={item.name}
               price={`R ${item.price}`}
-              priceStyle={styles.menuText}
-              onPress={() => handlePress(String(item.id))}
+              onPress={() => handlePress(String(item.id))} // Navigates to details
+              onAddToCart={() => {
+                if (!current) {
+                  alert("You have to first login to your account.");
+                  return;
+                }
+
+                // Replace 'addToCart' with your actual action name
+                dispatch(addToCart({ item, userId: current!.id! }));
+                alert(`${item.name} added to cart!`);
+              }}
             />
           ))}
-      </ScrollView>
-
-      {/* Grid Section - Two per row */}
-      <Text style={styles.sectionTitle}>Menu</Text>
-      <View style={styles.gridContainer}>
-        {
-          /* Menu Items */
-          MENU.map((menu) => (
-            <MenuItem
-              style={styles.gridItem}
-              key={menu.id}
-              image={menu.img}
-              text={menu.text}
-              textStyle={styles.menuText}
-              price={`${menu.price}`}
-              priceStyle={styles.menuText}
-              // imageStyle={styles.gridItemImage}
-            />
-          ))
-        }
       </View>
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: "relative",
+    backgroundColor: "#FFFFFF", // Use white background like the image
+    paddingTop: 50,
+  },
+  /* Header & Search Styles */
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#EEE",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  searchPlaceholder: {
+    color: "#AAA",
+    marginLeft: 10,
+    fontSize: 14,
+  },
+  /* Section Header (Title + View More) */
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingRight: 20,
+    marginVertical: 20,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginHorizontal: 15,
-    marginTop: 20,
-    marginBottom: 10,
+    fontWeight: "800",
+    color: Colors.tomatoRed,
+    marginHorizontal: 20,
   },
+  viewMore: {
+    color: "#E67E22", // The orange accent color
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  /* Horizontal Scrolling Categories */
   horizontalScroll: {
-    // This prevents the ScrollView from expanding vertically
+    paddingLeft: 20,
     flexGrow: 0,
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    marginVertical: 25,
   },
-  demo: {
-    backgroundColor: "#e0e0e0", // Using light gray for a cleaner look
-    borderRadius: 15,
-    width: COLUMN_WIDTH,
-    height: COLUMN_WIDTH,
-    marginHorizontal: 5,
-  },
-  menuText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 5,
-    textAlign: "center",
-  },
-  /* Grid Styles */
+  /* Grid Container */
   gridContainer: {
     flexDirection: "row",
-    flexWrap: "wrap", // This allows items to move to the next line
+    flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingHorizontal: 5,
-    flex: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 100, // Room for Bottom Tabs
   },
+  // Ensure the grid items have consistent sizing
   gridItem: {
     width: "48%",
-    backgroundColor: "#FFF",
-    borderRadius: 15,
     marginBottom: 15,
-    padding: 10,
-    alignItems: "center", // <--- ADD THIS to center children horizontally
-    justifyContent: "center", // Optional: centers children vertically if height is fixed
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
-  gridItemImage: {
-    width: "100%",
-    height: 100,
-    borderRadius: 10,
+  searchInput: {
+    flex: 1, // This is critical to make the input wide
+    marginLeft: 10, // Space between icon and text
+    fontSize: 14,
+    color: "#222", // Darker text for actual typing
+    height: 40, // Consistent height
   },
-  imagePlaceholder: {
-    backgroundColor: "#E0E0E0",
-    height: 100,
-    borderRadius: 10,
-    marginBottom: 8,
-  },
-  textPlaceholder: {
-    backgroundColor: "#F0F0F0",
-    height: 12,
-    borderRadius: 4,
-    marginBottom: 6,
-  },
-  badge: {
-    position: "absolute",
-    right: -6,
-    top: -3,
-    backgroundColor: "#000", // Black or Red badge
-    borderRadius: 10,
-    width: 18,
-    height: 18,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: "#fff",
-  },
-  badgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  menuImage: {},
 });

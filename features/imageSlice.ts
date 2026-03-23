@@ -19,7 +19,6 @@ const initialState: userState = {
 export const getCategoryImages = createAsyncThunk(
   "image/getCategoryImages",
   async (_, { rejectWithValue }) => {
-    console.log("getMenuImages");
     try {
       const images = await getImages("images", "categories");
 
@@ -33,7 +32,6 @@ export const getCategoryImages = createAsyncThunk(
 export const getTrendingImages = createAsyncThunk(
   "image/getTrendingImages",
   async (_, { rejectWithValue }) => {
-    console.log("getMenuImages");
     try {
       const images = await getImages("images", "trending");
 

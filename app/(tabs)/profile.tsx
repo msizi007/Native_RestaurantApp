@@ -1,3 +1,4 @@
+import { GuestUser } from "@/components/GuestUser";
 import { User } from "@/types/User";
 import { getLocalUser, removeLocalUser } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,22 +15,19 @@ import {
 const Profile = () => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  console.log(300, user);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const storedUser = await getLocalUser();
-        console.log(1001, storedUser);
         setUser(storedUser);
       } catch (error) {
         console.error("Failed to load user:", error);
       }
     };
     loadData();
-    console.log("user loaded");
   }, []);
-
-  console.log(7000, { user });
 
   function logout() {
     removeLocalUser();
@@ -112,7 +110,7 @@ const Profile = () => {
           </TouchableOpacity>
         </>
       ) : (
-        <Text>Fobidden: You are not logged in</Text>
+        <GuestUser />
       )}
     </ScrollView>
   );

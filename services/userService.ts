@@ -53,7 +53,6 @@ export async function getUserByIdDB(id: number): Promise<User | null> {
 }
 
 export async function addUserDB(user: User): Promise<User | null> {
-  console.log(101, user);
   const { data, error } = await supabase
     .from("Users")
     .insert([user])
@@ -63,7 +62,6 @@ export async function addUserDB(user: User): Promise<User | null> {
   if (error) {
     throw new Error(error.message);
   }
-  console.log("data", data, "error", error);
 
   if (error) {
     throw new Error(error);
@@ -75,15 +73,12 @@ export async function addUserDB(user: User): Promise<User | null> {
 export async function loginUserDB(
   credentials: LoginCredentials,
 ): Promise<User | null> {
-  console.log(200, credentials, await supabase.from("Users").select("*"));
   const { data, error } = await supabase
     .from("Users")
     .select("*")
     .eq("email", credentials.email)
     .eq("password", credentials.password)
     .maybeSingle();
-
-  console.log(405, { data, error });
 
   if (error) {
     throw new Error(error.message);
@@ -103,8 +98,6 @@ export async function updateUserDB(user: User): Promise<User | null> {
     .eq("id", user.id)
     .select()
     .maybeSingle();
-
-  console.log(7004, { data, error });
 
   if (error) {
     throw new Error(error.message);

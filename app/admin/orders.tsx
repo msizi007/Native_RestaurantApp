@@ -22,7 +22,6 @@ export default function OrdersManager() {
   useEffect(() => {
     if (orders && orders.length > 0) {
       const ids = orders.map((order) => order.userId);
-      console.log(501, ids.length, ids);
       dispatch(getUsersByIds(ids));
     }
   }, [orders]);
@@ -31,7 +30,6 @@ export default function OrdersManager() {
     dispatch(approveOrder(orderId));
   }
 
-  console.log(500, orders?.length, users?.length, users);
 
   return (
     <View style={styles.container}>

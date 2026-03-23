@@ -42,10 +42,8 @@ export const getItems = createAsyncThunk(
 export const getItemById = createAsyncThunk(
   "item/getItemById",
   async (id: number, { rejectWithValue }) => {
-    console.log(2001, { id });
     try {
       const item = await getItemByIdDB(id);
-      console.log(2002, { item });
 
       return item ? item : rejectWithValue("Failed to get menu items");
     } catch (error) {
@@ -58,7 +56,6 @@ export const getTrendingItems = createAsyncThunk(
   "item/getTrendingItems",
   async (_, { rejectWithValue }) => {
     try {
-      console.log(901, "getTrendingItems");
       const items = await getTrendingItemsDB();
 
       return items ? items : rejectWithValue("Failed to get menu items");
@@ -74,7 +71,6 @@ export const getItemsByIds = createAsyncThunk(
     try {
       const items = await getItemsByIdsDB(ids);
 
-      console.log(4002, { items });
 
       return items ? items : rejectWithValue("Failed to get menu items");
     } catch (error) {
@@ -102,7 +98,6 @@ export const updateItem = createAsyncThunk(
     try {
       const updatedItem = await updateItemDB(item);
 
-      console.log(221, { updatedItem });
 
       return updatedItem
         ? updatedItem
@@ -167,7 +162,6 @@ const itemSlice = createSlice({
       .addCase(getItemById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        console.log("rejected payload ITEM", action.payload);
       })
       .addCase(getItemsByIds.pending, (state) => {
         state.loading = true;
@@ -215,7 +209,6 @@ const itemSlice = createSlice({
       })
       .addCase(updateItem.rejected, (state, action) => {
         state.loading = false;
-        console.log(action.payload);
         state.error = action.payload as string;
       });
   },

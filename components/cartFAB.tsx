@@ -24,24 +24,20 @@ const CartFAB = () => {
   // Calculate total quantity of items in the cart
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  console.log(1000, { user, cart, cartItems, itemCount });
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const storedUser = await getLocalUser();
-        console.log(1001, storedUser);
         setUser(storedUser);
       } catch (error) {
         console.error("Failed to load user:", error);
       }
     };
     loadData();
-    console.log("user loaded");
   }, []);
 
   useEffect(() => {
-    console.log("STEP 2..");
     if (user) {
       dispatch(getCartByUserId(user.id!));
     }

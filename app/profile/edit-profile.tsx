@@ -79,7 +79,6 @@ export default function EditProfile() {
       address,
       password: user!.password,
     };
-    console.log(7002, { payload });
     dispatch(updateUser(payload));
     setIsEditable(false);
     alert("Profile updated successfully!");
@@ -97,7 +96,7 @@ export default function EditProfile() {
       />
       <TouchableOpacity
         onPress={() => {
-          (setIsEditable(!isEditable), console.log(isEditable));
+          (setIsEditable(!isEditable));
         }}
         style={{
           position: "absolute",

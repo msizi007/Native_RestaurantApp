@@ -10,7 +10,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { LoginCredentials, User } from "./../types/User";
 
 interface userState {
-  current: User | LoginCredentials | null;
+  current: User | null;
   users: User[] | null;
   loading: boolean;
   error: string;
@@ -45,7 +45,6 @@ export const registerUser = createAsyncThunk(
 
       const newUser = await addUserDB(user);
 
-      console.log("newUser", { newUser });
 
       return newUser ? newUser : rejectWithValue("Failed to register user");
     } catch (error: any) {
@@ -71,19 +70,15 @@ export const loginUser = createAsyncThunk(
         return rejectWithValue("Invalid email address");
 
       // if admin credentials then login as admin
-      console.log(3333, { credentials, adminCredentials });
       if (
         credentials.email === adminCredentials.email &&
         credentials.password === adminCredentials.password
       ) {
-        console.log("ADMIN LOGIN");
         return { user: adminCredentials, userType: "Admin" };
       }
 
-      console.log(402, credentials);
       const user = await loginUserDB(credentials);
 
-      console.log(400, user);
 
       return user
         ? { user, userType: "User" }
@@ -100,7 +95,6 @@ export const updateUser = createAsyncThunk(
   async (user: User, { rejectWithValue }) => {
     try {
       const updatedUser = await updateUserDB(user);
-      console.log(7003, { updatedUser });
       return updatedUser
         ? updatedUser
         : rejectWithValue("Failed to update user");
@@ -154,11 +148,9 @@ const userSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.current = action.payload as User;
-        console.log(900, "sucess: ", action.payload);
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        console.log(404, action.payload);
         state.error = action.payload as string;
       })
       .addCase(loginUser.pending, (state) => {
@@ -167,11 +159,9 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         const { user, userType } = action.payload as {
-          current: User;
           user: User;
           userType: "Admin" | "User";
         };
-        console.log(4444, { user, userType });
         state.loading = false;
         state.current = user;
         state.userType = userType;

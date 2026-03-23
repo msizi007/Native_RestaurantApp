@@ -53,7 +53,6 @@ export default function Register() {
       }, 0);
       return () => clearTimeout(timeout);
     }
-    console.log("current", current);
   }, [current]);
 
   return (

@@ -1,5 +1,6 @@
 import CartItem from "@/components/CartItem";
 import { Checkout } from "@/components/Checkout";
+import { EmptyCart } from "@/components/EmptyCart";
 import { getItemsByIds } from "@/features/itemSlice";
 import { createOrder } from "@/features/orderSlice";
 import { AppDispatch, RootState } from "@/store";
@@ -35,6 +36,8 @@ const Cart = () => {
   const [user, setUser] = useState<User | null>(null);
   const [payKey, setPayKey] = useState(0);
 
+  console.log({ user });
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -54,11 +57,9 @@ const Cart = () => {
       if (cartItems.length === 0) {
         return;
       }
-      console.log("CHANGES");
 
       // 1. Extract unique IDs from the cart
       const ids = cartItems.map((cartItem) => cartItem.itemId);
-      console.log("IDS", ids);
 
       // 2. Fetch all item details in one request
       dispatch(getItemsByIds(ids));
@@ -86,8 +87,6 @@ const Cart = () => {
     return total;
   }
 
-  // console.log(2000, { cartItems, user, current, items, cartChanges });
-
   const handlePay = () => {
     if (!user || !user.id) {
       alert("User profile not loaded. Please log in again.");
@@ -99,12 +98,10 @@ const Cart = () => {
       status: "Pending",
       totalPrice: calcTotalPrice(items),
     };
-    // console.log(8000, { payload });
     popup.checkout({
       email: user.email,
       amount: calcTotalPrice(items),
       onSuccess: (res) => {
-        console.log("Success:", res);
         dispatch(createOrder(payload));
         setPayKey((prev) => prev + 1);
       },
@@ -115,9 +112,7 @@ const Cart = () => {
   return (
     <View style={styles.container} key={payKey}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {cartItems &&
-          items &&
-          cartItems.length === cartItems.length &&
+        {cartItems && items && cartItems.length === cartItems.length ? (
           cartItems.map((cartItem) => {
             // DO NOT USE INDEX 'i'. Find the item details by ID.
             const itemDetails = items!.find(
@@ -137,7 +132,10 @@ const Cart = () => {
                 cartId={cartId!}
               />
             );
-          })}
+          })
+        ) : (
+          <EmptyCart />
+        )}
       </ScrollView>
 
       {/* Bottom Summary Section */}

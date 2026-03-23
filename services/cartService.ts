@@ -10,8 +10,6 @@ export async function getCartByUserIdDB(id: number): Promise<Cart | null> {
     .eq("userId", id)
     .maybeSingle();
 
-  console.log(302, data, error);
-
   // 2. Handle actual database connection errors
   if (error) {
     console.error("Database error:", error.message);
@@ -32,8 +30,6 @@ export async function createCart(userId: number): Promise<Cart | null> {
     .insert({ userId, status: "Pending" })
     .select()
     .single();
-
-  console.log(310, data, error, userId);
 
   if (error) {
     throw new Error(error.message);

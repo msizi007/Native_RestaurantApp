@@ -26,7 +26,6 @@ export default function Login() {
         email,
         password,
       };
-      console.log(401, payload);
       dispatch(loginUser(payload));
     } catch (err) {
       console.log(err);
@@ -40,12 +39,10 @@ export default function Login() {
     }
 
     if (current) {
-      console.log("CURRENT USER", current);
       setLocalUser(current);
       // Use replace so they can't 'Go Back' to login after entering the app
       // router.replace("/(tabs)");
 
-      console.log(9000, { current, userType });
 
       router.push("/home");
     }

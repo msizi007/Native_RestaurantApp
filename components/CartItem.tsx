@@ -33,7 +33,6 @@ const CartItem = (props: Props) => {
   function onDecrement() {
     const quantity = props.quantity;
     const cartItemId = props.id;
-    console.log(6000, "DECREMENT", { props, quantity, cartItemId });
     props.quantity == 1
       ? dispatch(removeCartItem(props.id))
       : dispatch(

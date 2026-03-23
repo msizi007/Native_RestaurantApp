@@ -66,9 +66,7 @@ export const createOrder = createAsyncThunk(
   "order/createOrder",
   async (order: Order, { rejectWithValue }) => {
     try {
-      console.log(2201, { order });
       const newOrder = await createOrderDB(order);
-      console.log(2202, { newOrder });
 
       return newOrder ? newOrder : rejectWithValue("Failed to get menu items");
     } catch (error) {
@@ -159,12 +157,10 @@ export const orderSlice = createSlice({
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.current = action.payload;
-        console.log("ORDER SUCESS", action.payload);
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        console.log("ORDER FAILED", action.payload);
       })
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
