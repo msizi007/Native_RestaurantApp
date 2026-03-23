@@ -165,7 +165,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginBottom: 15,
     padding: 10,
-    // Add shadow to make them look like cards
+    alignItems: "center", // <--- ADD THIS to center children horizontally
+    justifyContent: "center", // Optional: centers children vertically if height is fixed
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },

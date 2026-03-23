@@ -86,11 +86,6 @@ const Profile = () => {
                 onPress={() => router.push("/profile/edit-profile")}
               />
               <View style={styles.divider} />
-              <MenuItem
-                icon="lock-closed-outline"
-                title="Change Password"
-                onPress={() => router.push("/profile/change-password")}
-              />
             </View>
           </View>
 
