@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     marginBottom: 15,
+    justifyContent: "center",
   },
   menuText: { color: "#FFF", marginTop: 10, fontWeight: "600" },
   orderItem: {

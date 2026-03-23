@@ -75,17 +75,22 @@ export async function addUserDB(user: User): Promise<User | null> {
 export async function loginUserDB(
   credentials: LoginCredentials,
 ): Promise<User | null> {
+  console.log(200, credentials, await supabase.from("Users").select("*"));
   const { data, error } = await supabase
     .from("Users")
     .select("*")
     .eq("email", credentials.email)
     .eq("password", credentials.password)
-    .single();
+    .maybeSingle();
 
   console.log(405, { data, error });
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  if (!data) {
+    return null;
   }
 
   return data as User | null;

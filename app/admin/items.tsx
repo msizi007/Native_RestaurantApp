@@ -1,4 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
+import { getItems } from "@/features/itemSlice";
+import { AppDispatch, RootState } from "@/store";
+import { Colors } from "@/types/Colors";
+import { Entypo, Ionicons } from "@expo/vector-icons";
+import { useEffect } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -6,19 +10,26 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function ItemsManager() {
-  const items = [
-    { id: "1", name: "Mizzi Burger", price: "R85", stock: true },
-    { id: "2", name: "Peri-Peri Chicken", price: "R120", stock: false },
-  ];
+  const { items } = useSelector((state: RootState) => state.item);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(getItems());
+  }, []);
+
+  useEffect(() => {
+    console.log(items);
+  }, [items]);
 
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.title}>Menu Items</Text>
+        <Text style={styles.title}>Items</Text>
         <TouchableOpacity style={styles.addBtn}>
-          <Ionicons name="add" size={24} color="#FFF" />
+          <Ionicons name="add" size={20} color="#FFF" />
         </TouchableOpacity>
       </View>
 
@@ -30,15 +41,8 @@ export default function ItemsManager() {
               <Text style={styles.userName}>{item.name}</Text>
               <Text style={styles.userEmail}>{item.price}</Text>
             </View>
-            <TouchableOpacity
-              style={[
-                styles.stockToggle,
-                { borderColor: item.stock ? "#FF6347" : "#444" },
-              ]}
-            >
-              <Text style={{ color: item.stock ? "#FF6347" : "#444" }}>
-                {item.stock ? "In Stock" : "Out of Stock"}
-              </Text>
+            <TouchableOpacity>
+              <Entypo name="chevron-down" size={24} color={Colors.tomatoRed} />
             </TouchableOpacity>
           </View>
         )}
@@ -54,11 +58,12 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 60,
   },
-  title: { color: "#FFF", fontSize: 24, fontWeight: "bold", marginBottom: 20 },
+  title: { color: "#FFF", fontSize: 24, fontWeight: "bold" },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 20,
   },
   searchBar: {
     flexDirection: "row",

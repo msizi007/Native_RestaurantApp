@@ -1,6 +1,8 @@
+import { approveOrder } from "@/features/orderSlice";
 import { getUsersByIds } from "@/features/userSlice";
 import { AppDispatch, RootState } from "@/store";
-import { Ionicons } from "@expo/vector-icons";
+import { User } from "@/types/User";
+import { AntDesign } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import {
@@ -20,11 +22,16 @@ export default function OrdersManager() {
   useEffect(() => {
     if (orders && orders.length > 0) {
       const ids = orders.map((order) => order.userId);
+      console.log(501, ids.length, ids);
       dispatch(getUsersByIds(ids));
     }
   }, [orders]);
 
-  console.log("ORDERS ADMIN PAGE", { orders, users });
+  function handleToggleStatus(orderId: number) {
+    dispatch(approveOrder(orderId));
+  }
+
+  console.log(500, orders?.length, users?.length, users);
 
   return (
     <View style={styles.container}>
@@ -40,22 +47,22 @@ export default function OrdersManager() {
         }}
       />
       <Text style={styles.title}>Live Orders</Text>
-      {orders &&
-        orders.length > 0 &&
-        users &&
-        users.length == orders.length && (
-          <>
-            <FlatList
-              data={orders}
-              keyExtractor={(item, index) =>
-                item.id?.toString() || Math.random().toString()
-              }
-              renderItem={({ item, index }) => (
+      {orders && users && orders.length > 0 ? (
+        <>
+          <FlatList
+            data={orders}
+            keyExtractor={(item, index) =>
+              item.id?.toString() || Math.random().toString()
+            }
+            renderItem={({ item, index }) => {
+              const user: User = users.find((u) => u.id === item.userId)!;
+
+              return (
                 <View style={styles.card}>
                   <View>
                     <Text style={styles.userName}>Order #{item.id}</Text>
                     <Text style={styles.userEmail}>
-                      {`${users[index].firstName} ${users[index].lastName}`} -{" "}
+                      {`${user.firstName} ${user.lastName}`} -{" "}
                       {item.created_at
                         ? new Date(item.created_at).toLocaleTimeString(
                             "en-ZA",
@@ -70,14 +77,24 @@ export default function OrdersManager() {
                   <Text
                     style={styles.orderTotal}
                   >{`R ${item.totalPrice}`}</Text>
-                  <TouchableOpacity style={styles.editBtn}>
-                    <Ionicons name="ellipsis-vertical" size={20} color="#FFF" />
+
+                  <TouchableOpacity
+                    onPress={() => handleToggleStatus(item.id!)}
+                  >
+                    <AntDesign
+                      name="check-circle"
+                      size={22}
+                      color={item.status == "Delivered" ? "green" : "white"}
+                    />
                   </TouchableOpacity>
                 </View>
-              )}
-            />
-          </>
-        )}
+              );
+            }}
+          />
+        </>
+      ) : (
+        <Text>Loading...</Text>
+      )}
     </View>
   );
 }

@@ -94,9 +94,11 @@ export const approveOrder = createAsyncThunk(
   "order/approveOrder",
   async (orderId: number, { rejectWithValue }) => {
     try {
-      const isDeleted = await approveOrderDB(orderId);
+      const approvedOrder = await approveOrderDB(orderId);
 
-      return isDeleted ? orderId : rejectWithValue("Failed to get menu items");
+      return approvedOrder
+        ? approvedOrder
+        : rejectWithValue("Failed to get menu items");
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -171,8 +173,8 @@ export const orderSlice = createSlice({
         state.loading = false;
         if (state.orders) {
           state.orders = state.orders.map((order) => {
-            if (order.id === action.payload) {
-              return { ...order, status: "Delivered" };
+            if (order.id === action.payload.id) {
+              return action.payload;
             }
             return order;
           });

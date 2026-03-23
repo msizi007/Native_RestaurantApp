@@ -15,6 +15,7 @@ import { Dimensions } from "react-native";
 
 const { width } = Dimensions.get("window");
 const COLUMN_WIDTH = width / 2 - 20; // 2 columns with padding
+const IMAGE_OFFSET = 40;
 
 interface Props {
   // Use id or index for the key, but remember 'key' isn't
@@ -52,10 +53,11 @@ const styles = StyleSheet.create({
   container: {
     overflow: "hidden", // Ensures image follows container border radius
     flex: 1,
+    marginHorizontal: 20,
   },
   image: {
-    width: COLUMN_WIDTH,
-    height: COLUMN_WIDTH,
+    width: COLUMN_WIDTH - IMAGE_OFFSET,
+    height: COLUMN_WIDTH - IMAGE_OFFSET * 2,
   },
 });
 

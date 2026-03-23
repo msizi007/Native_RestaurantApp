@@ -10,7 +10,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { LoginCredentials, User } from "./../types/User";
 
 interface userState {
-  current: User | null;
+  current: User | LoginCredentials | null;
   users: User[] | null;
   loading: boolean;
   error: string;
@@ -77,7 +77,7 @@ export const loginUser = createAsyncThunk(
         credentials.password === adminCredentials.password
       ) {
         console.log("ADMIN LOGIN");
-        return { user: null, userType: "Admin" };
+        return { user: adminCredentials, userType: "Admin" };
       }
 
       console.log(402, credentials);
@@ -140,7 +140,11 @@ export const getAllUsers = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    logoutUser: (state) => {
+      state.current = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
@@ -163,7 +167,8 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         const { user, userType } = action.payload as {
-          user: User | null;
+          current: User;
+          user: User;
           userType: "Admin" | "User";
         };
         console.log(4444, { user, userType });
@@ -214,4 +219,5 @@ const userSlice = createSlice({
   },
 });
 
+export const { logoutUser } = userSlice.actions;
 export default userSlice.reducer;

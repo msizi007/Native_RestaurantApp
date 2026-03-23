@@ -1,7 +1,7 @@
 import { MenuBtn } from "@/components/MenuButton";
 import { MenuOption } from "@/components/MenuOption";
 import { getAllOrders } from "@/features/orderSlice";
-import { getUsersByIds } from "@/features/userSlice";
+import { getUsersByIds, logoutUser } from "@/features/userSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Order } from "@/types/Order";
 import { removeLocalUser } from "@/utils/storage";
@@ -70,15 +70,11 @@ export default function AdminDashboard() {
     }
   }, [orders]);
 
-  console.log("ALL ORDERS DASHBOARD", {
-    orders,
-    totalRevenue,
-    recentOrders,
-    recentUsers,
-  });
+  console.log("DASHBOARD...");
 
   function logout() {
     removeLocalUser();
+    logoutUser();
     router.push("/login");
   }
 
@@ -112,6 +108,11 @@ export default function AdminDashboard() {
                   icon="cart"
                   title="Orders"
                   onPress={() => router.push("/admin/orders")}
+                />
+                <MenuOption
+                  icon="fast-food"
+                  title="Items"
+                  onPress={() => router.push("/admin/items")}
                 />
 
                 <View style={styles.divider} />
@@ -190,7 +191,6 @@ export default function AdminDashboard() {
             icon="fast-food"
             onPress={() => router.push("/admin/items")}
           />
-          <MenuBtn title="Drivers" icon="bicycle" onPress={() => {}} />
         </View>
 
         {/* Recent Orders */}
@@ -308,8 +308,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: "48%",
   },
-  statLabel: { color: "#888", fontSize: 12 },
-  statValue: { color: "#FFF", fontSize: 18, fontWeight: "bold", marginTop: 5 },
+  statLabel: { color: "#888", fontSize: 14, fontWeight: "bold" },
+  statValue: { color: "#FFF", fontSize: 20, fontWeight: "bold", marginTop: 5 },
   chart: { borderRadius: 15, marginVertical: 8 },
   menuGrid: {
     flexDirection: "row",

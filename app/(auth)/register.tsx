@@ -114,7 +114,7 @@ export default function Register() {
       </Text>
       {error && <Text style={styles.error}>{error}</Text>}
       <Button
-        text="Register"
+        text={loading ? "Registering..." : "Register"}
         onClick={() => onSubmit()}
         buttonStyle={styles.button}
         textStyle={styles.buttonText}
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "white",
   },
   small: {
     fontSize: 14,
@@ -164,6 +164,7 @@ const styles = StyleSheet.create({
   error: {
     color: "red",
     textAlign: "center",
-    marginHorizontal: 10,
+    marginVertical: 10,
+    fontWeight: "bold",
   },
 });

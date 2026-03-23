@@ -111,7 +111,7 @@ export default function Home() {
               textStyle={styles.menuText}
               price={`${menu.price}`}
               priceStyle={styles.menuText}
-              imageStyle={styles.gridItemImage}
+              // imageStyle={styles.gridItemImage}
             />
           ))
         }
@@ -207,8 +207,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
-  menuImage: {
-    width: "100%",
-    borderRadius: 15,
-  },
+  menuImage: {},
 });

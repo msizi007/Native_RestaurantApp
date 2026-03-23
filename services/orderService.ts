@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/superbase";
-import { Order, OrderStatus } from "@/types/Order";
+import { Order } from "@/types/Order";
 
 export async function getAllOrdersDB(): Promise<Order[] | null> {
   const { data, error } = await supabase.from("Order").select("*");
@@ -29,21 +29,6 @@ export async function getOrderByIdDB(id: number): Promise<Order | null> {
     .from("Order")
     .select("*")
     .eq("id", id)
-    .single();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data as Order | null;
-}
-
-export async function updateOrderStatusDB(id: number, status: OrderStatus) {
-  const { data, error } = await supabase
-    .from("Order")
-    .update({ status })
-    .eq("id", id)
-    .select()
     .single();
 
   if (error) {

@@ -34,7 +34,10 @@ export default function Login() {
   }
 
   useEffect(() => {
-    if (userType === "Admin") router.replace("/admin/dashboard");
+    if (current && userType === "Admin") {
+      router.replace("/admin/dashboard");
+      return;
+    }
 
     if (current) {
       console.log("CURRENT USER", current);
@@ -46,6 +49,7 @@ export default function Login() {
 
       router.push("/home");
     }
+    return;
   }, [current, userType]);
 
   return (
