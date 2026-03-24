@@ -36,6 +36,14 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="checkout"
+        options={{
+          href: null, // This hides the tab button
+          headerShown: false, // You might want the header visible here
+          title: "Checkout",
+        }}
+      />
     </Tabs>
   );
 }

@@ -44,7 +44,7 @@ const Promo = () => {
         onMomentumScrollEnd={(event) => {
           // Updates dots if user swipes manually
           const newIndex = Math.round(
-            event.nativeEvent.contentOffset.x / width
+            event.nativeEvent.contentOffset.x / width,
           );
           setCurrentIndex(newIndex);
         }}
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   sliderWrapper: {
     width: width,
     height: 200,
-    marginTop: 40,
+    marginTop: 20,
   },
   cardWrapper: {
     width: width, // Each wrapper must be full screen width for paging

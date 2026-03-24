@@ -1,6 +1,8 @@
+import { EditBankDetails } from "@/components/EditBankDetails";
 import { getItemsByIds } from "@/features/itemSlice";
 import { createOrder } from "@/features/orderSlice";
 import { AppDispatch, RootState } from "@/store";
+import { Colors } from "@/types/Colors";
 import { Item } from "@/types/Item";
 import { Order } from "@/types/Order";
 import { User } from "@/types/User";
@@ -11,6 +13,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -27,28 +30,22 @@ import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get("window");
 
-// Sample data for consistency with provided image
-const DELIVERY_ESTIMATE = "about 1 hour and 15 minutes";
-const DELIVERY_ADDRESS = {
-  area: "AlRai",
-  block: "02",
-  street: "38",
-  building: "59",
-};
-const CONTACT_PERSON = {
-  name: "Karim",
-  phone: "+96552641258",
-};
-const PRICE_SUBTOTAL = 10.29;
-const PRICE_DELIVERY = 0.5;
-const CURRENCY = "KD";
-
 export default function CheckoutScreen() {
   const [selectedPayment, setSelectedPayment] = useState<string | null>("Cash");
+  // Mock data for skeleton items
+  const { cartItems, cartId } = useSelector(
+    (state: RootState) => state.cartItem,
+  );
+  const { current, items } = useSelector((state: RootState) => state.item);
+  const cartChanges = useSelector((state: RootState) => state.cartItem.current);
+  const dispatch = useDispatch<AppDispatch>();
+  const [showPayment, setShowPayment] = React.useState(false);
+  const { popup } = usePaystack();
+  const [user, setUser] = useState<User | null>(null);
+  const [payKey, setPayKey] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const formattedAddress = `${DELIVERY_ADDRESS.area}, block ${DELIVERY_ADDRESS.block}, Str. ${DELIVERY_ADDRESS.street}\nBuilding ${DELIVERY_ADDRESS.building}`;
-  const formattedContact = `${CONTACT_PERSON.name}, ${CONTACT_PERSON.phone}`;
-  const totalPrice = PRICE_SUBTOTAL + PRICE_DELIVERY;
+  console.log(888, { user });
 
   const PaymentOption = ({
     label,
@@ -75,27 +72,13 @@ export default function CheckoutScreen() {
           <Text style={styles.paymentOptionLabel}>{label}</Text>
         </View>
         <MaterialCommunityIcons
-          name="ab-testing"
+          name="card-account-details"
           size={24}
-          color={Colors.iconPayment}
+          color={CustomColors.iconPayment}
         />
       </Pressable>
     );
   };
-
-  // Mock data for skeleton items
-  const { cartItems, cartId } = useSelector(
-    (state: RootState) => state.cartItem,
-  );
-  const { current, items } = useSelector((state: RootState) => state.item);
-  const cartChanges = useSelector((state: RootState) => state.cartItem.current);
-  const dispatch = useDispatch<AppDispatch>();
-  const [showPayment, setShowPayment] = React.useState(false);
-  const { popup } = usePaystack();
-  const [user, setUser] = useState<User | null>(null);
-  const [payKey, setPayKey] = useState(0);
-
-  console.log({ user });
 
   useEffect(() => {
     const loadData = async () => {
@@ -134,7 +117,7 @@ export default function CheckoutScreen() {
     }
   }, [cartChanges]);
 
-  function calcTotalPrice(items: Item[] | null): number {
+  function calcSubTotal(items: Item[] | null): number {
     if (!items || !cartItems) return 0; // Guard against null
     let total = 0;
     for (let i = 0; i < items.length; i++) {
@@ -146,6 +129,14 @@ export default function CheckoutScreen() {
     return total;
   }
 
+  function calcDelivery(): number {
+    return (calcSubTotal(items) / 100) * 10;
+  }
+
+  function calcTotalPrice(): number {
+    return calcSubTotal(items) + calcDelivery();
+  }
+
   const handlePay = () => {
     if (!user || !user.id) {
       alert("User profile not loaded. Please log in again.");
@@ -155,11 +146,11 @@ export default function CheckoutScreen() {
       cartId: cartId!,
       userId: Number(user!.id!),
       status: "Pending",
-      totalPrice: calcTotalPrice(items),
+      totalPrice: calcTotalPrice(),
     };
     popup.checkout({
       email: user.email!,
-      amount: calcTotalPrice(items),
+      amount: calcTotalPrice(),
       onSuccess: () => {
         dispatch(createOrder(payload));
         setPayKey((prev) => prev + 1);
@@ -182,8 +173,7 @@ export default function CheckoutScreen() {
         {label}
       </Text>
       <Text style={[styles.priceValue, isTotal && styles.priceTotalValue]}>
-        {value.toFixed(3)}
-        {CURRENCY}
+        R {value.toFixed(3)}
       </Text>
     </View>
   );
@@ -192,118 +182,116 @@ export default function CheckoutScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
-        {/* ----- HEADER ----- */}
-        <View style={styles.header}>
-          <Pressable style={styles.backButton}>
-            <Ionicons name="chevron-back" size={24} color="black" />
-          </Pressable>
-          <Text style={styles.headerTitle}>Checkout</Text>
-          <View style={styles.headerRightPlaceholder} />{" "}
-          {/* For centering the title */}
-        </View>
-
-        {/* ----- DELIVERY TIME SECTION ----- */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Delivery time</Text>
-          <View style={styles.deliveryTimeRow}>
-            <MaterialCommunityIcons
-              name="moped"
-              size={20}
-              color={Colors.iconMoped}
-              style={styles.deliveryMopedIcon}
-            />
-            <Text style={styles.deliveryTimeText}>
-              Deliver in {DELIVERY_ESTIMATE}
-            </Text>
-          </View>
-          <View style={styles.mapContainer}>
-            {/* Map image or a simple image placeholder */}
-            <View style={styles.mapPlaceholder}>
-              <Text style={styles.mapPlaceholderText}>[ Map ]</Text>
+        {user && user.id ? (
+          <>
+            {/* ----- HEADER ----- */}
+            <View style={styles.header}>
+              <Pressable
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={28}
+                  color={Colors.tomatoRed}
+                />
+              </Pressable>
+              <Text style={styles.headerTitle}>Checkout</Text>
+              <View style={styles.headerRightPlaceholder} />{" "}
+              {/* For centering the title */}
             </View>
-            <MaterialCommunityIcons
-              name="moped"
-              size={16}
-              color={Colors.iconMoped}
-              style={styles.mapMopedIcon}
+
+            {/* ----- ADDRESS SECTION ----- */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Address</Text>
+              <View style={styles.addressRow}>
+                <Ionicons
+                  name="location-sharp"
+                  size={22}
+                  color={CustomColors.iconLocation}
+                  style={styles.addressIcon}
+                />
+                <Text style={styles.addressText} numberOfLines={2}>
+                  {user.address}
+                </Text>
+                <Pressable style={styles.editIcon}>
+                  <MaterialIcons
+                    name="edit"
+                    size={20}
+                    color={CustomColors.iconEdit}
+                  />
+                </Pressable>
+              </View>
+              <View style={styles.contactRow}>
+                <Feather
+                  name="phone"
+                  size={22}
+                  color={CustomColors.iconPhone}
+                  style={styles.contactIcon}
+                />
+                <Text style={styles.contactText}>{user.phoneNumber}</Text>
+                <Pressable style={styles.editIcon}>
+                  <MaterialIcons
+                    name="edit"
+                    size={20}
+                    color={CustomColors.iconEdit}
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+            {/* ----- PAYMENT METHOD SECTION ----- */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeaderRow}>
+                <Text style={styles.sectionTitle}>Payment Method</Text>
+                <Pressable onPress={() => setModalVisible(true)}>
+                  <Text style={styles.editActionText}>Edit Account</Text>
+                </Pressable>
+              </View>
+              <PaymentOption
+                label="Cash"
+                iconName="banknote-outline"
+                value="Cash"
+              />
+              <PaymentOption
+                label="Debit Card"
+                iconName="credit-card-outline"
+                value="DebitCard"
+              />
+            </View>
+
+            {/* ----- SUMMARY SECTION ----- */}
+            <View style={[styles.section, styles.summarySection]}>
+              <PriceRow label="Subtotal Price" value={calcSubTotal(items)} />
+              <PriceRow label="Delivery Charge" value={calcDelivery()} />
+              <PriceRow
+                label="Total Price"
+                value={calcTotalPrice()}
+                isTotal={true}
+              />
+            </View>
+
+            {/* ----- CONFIRM BUTTON ----- */}
+            <View style={styles.footer}>
+              <Pressable style={styles.confirmButton} onPress={handlePay}>
+                <Text style={styles.confirmButtonText}>Confirm Order</Text>
+              </Pressable>
+            </View>
+            <EditBankDetails
+              isVisible={modalVisible}
+              onClose={() => setModalVisible(false)}
+              onSave={(data) => console.log("Updated Data:", data)}
             />
-          </View>
-        </View>
-
-        {/* ----- ADDRESS SECTION ----- */}
-        <View style={styles.section}>
-          <View style={styles.addressRow}>
-            <Ionicons
-              name="location-sharp"
-              size={22}
-              color={Colors.iconLocation}
-              style={styles.addressIcon}
-            />
-            <Text style={styles.addressText} numberOfLines={2}>
-              {formattedAddress}
-            </Text>
-            <Pressable style={styles.editIcon}>
-              <MaterialIcons name="edit" size={20} color={Colors.iconEdit} />
-            </Pressable>
-          </View>
-          <View style={styles.contactRow}>
-            <Feather
-              name="phone"
-              size={22}
-              color={Colors.iconPhone}
-              style={styles.contactIcon}
-            />
-            <Text style={styles.contactText}>{formattedContact}</Text>
-            <Pressable style={styles.editIcon}>
-              <MaterialIcons name="edit" size={20} color={Colors.iconEdit} />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* ----- PAYMENT METHOD SECTION ----- */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>Payment Method</Text>
-            <Pressable>
-              <Text style={styles.editActionText}>Edit</Text>
-            </Pressable>
-          </View>
-          <PaymentOption
-            label="Cash"
-            iconName="banknote-outline"
-            value="Cash"
-          />
-          <PaymentOption
-            label="Debit Card"
-            iconName="credit-card-outline"
-            value="DebitCard"
-          />
-          <PaymentOption
-            label="Credit Card"
-            iconName="credit-card-multiple-outline"
-            value="CreditCard"
-          />
-        </View>
-
-        {/* ----- SUMMARY SECTION ----- */}
-        <View style={[styles.section, styles.summarySection]}>
-          <PriceRow label="Subtotal Price" value={PRICE_SUBTOTAL} />
-          <PriceRow label="Delivery Charge" value={PRICE_DELIVERY} />
-          <PriceRow label="Total Price" value={totalPrice} isTotal={true} />
-        </View>
-
-        {/* ----- CONFIRM BUTTON ----- */}
-        <View style={styles.footer}>
-          <Pressable style={styles.confirmButton}>
-            <Text style={styles.confirmButtonText}>Confirm Order</Text>
-          </Pressable>
-        </View>
+          </>
+        ) : (
+          <Text>User profile not loaded</Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const Colors = {
+const CustomColors = {
   background: "#FFFFFF",
   textMain: "#333333",
   textSecondary: "#666666",
@@ -322,7 +310,7 @@ const Colors = {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: CustomColors.background,
   },
   scrollContent: {
     paddingBottom: 40, // Space below confirm button
@@ -336,15 +324,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: CustomColors.border,
   },
   backButton: {
     padding: 5,
+    color: "red",
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: Colors.textMain,
+    color: Colors.tomatoRed,
     textAlign: "center",
     flex: 1,
   },
@@ -357,12 +346,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: CustomColors.border,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: Colors.textMain,
+    color: Colors.tomatoRed,
     marginBottom: 15,
   },
   sectionHeaderRow: {
@@ -370,44 +359,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 15,
-  },
-
-  /* DELIVERY TIME */
-  deliveryTimeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  deliveryMopedIcon: {
-    marginRight: 10,
-  },
-  deliveryTimeText: {
-    fontSize: 16,
-    color: Colors.textSecondary,
-    fontWeight: "500",
-  },
-  mapContainer: {
-    width: "100%",
-    height: 180,
-    borderRadius: 15,
-    overflow: "hidden",
-    position: "relative",
-  },
-  mapPlaceholder: {
-    flex: 1,
-    backgroundColor: Colors.mapBackground,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mapPlaceholderText: {
-    color: "#888",
-    fontSize: 18,
-    fontWeight: "500",
-  },
-  mapMopedIcon: {
-    position: "absolute",
-    top: 30, // Adjust based on placeholder map image
-    left: 100, // Adjust based on placeholder map image
   },
 
   /* ADDRESS */
@@ -424,7 +375,7 @@ const styles = StyleSheet.create({
   addressText: {
     flex: 1,
     fontSize: 16,
-    color: Colors.textSecondary,
+    color: CustomColors.textSecondary,
     fontWeight: "500",
     lineHeight: 22,
     marginRight: 10,
@@ -439,7 +390,7 @@ const styles = StyleSheet.create({
   contactText: {
     flex: 1,
     fontSize: 16,
-    color: Colors.textSecondary,
+    color: CustomColors.textSecondary,
     fontWeight: "500",
   },
   editIcon: {
@@ -450,7 +401,7 @@ const styles = StyleSheet.create({
   editActionText: {
     fontSize: 16,
     fontWeight: "600",
-    color: Colors.accent,
+    color: Colors.primary,
   },
   paymentOption: {
     flexDirection: "row",
@@ -458,7 +409,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: CustomColors.border,
   },
   paymentOptionLeft: {
     flexDirection: "row",
@@ -469,18 +420,18 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: Colors.radioButtonBorder,
+    borderColor: CustomColors.radioButtonBorder,
     marginRight: 15,
     justifyContent: "center",
     alignItems: "center",
   },
   radioButtonSelected: {
-    borderColor: Colors.radioButtonSelected,
+    borderColor: CustomColors.radioButtonSelected,
     borderWidth: 6, // Forms a filled circle with a thick border
   },
   paymentOptionLabel: {
     fontSize: 16,
-    color: Colors.textMain,
+    color: CustomColors.textMain,
     fontWeight: "600",
   },
 
@@ -499,22 +450,22 @@ const styles = StyleSheet.create({
   },
   priceLabel: {
     fontSize: 16,
-    color: Colors.textSecondary,
+    color: CustomColors.textSecondary,
     fontWeight: "500",
   },
   priceValue: {
     fontSize: 16,
-    color: Colors.textMain,
+    color: CustomColors.textMain,
     fontWeight: "600",
   },
   priceTotalLabel: {
     fontSize: 18,
-    color: Colors.textMain,
+    color: CustomColors.textMain,
     fontWeight: "700",
   },
   priceTotalValue: {
     fontSize: 20,
-    color: Colors.textMain,
+    color: CustomColors.textMain,
     fontWeight: "700",
   },
 
@@ -524,13 +475,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   confirmButton: {
-    backgroundColor: Colors.accent,
+    backgroundColor: CustomColors.accent,
     width: "100%",
     height: 60,
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: Colors.accent,
+    shadowColor: CustomColors.accent,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,

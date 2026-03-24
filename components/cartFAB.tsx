@@ -24,7 +24,6 @@ const CartFAB = () => {
   // Calculate total quantity of items in the cart
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -72,7 +71,7 @@ export default CartFAB;
 const styles = StyleSheet.create({
   cartFAB: {
     position: "absolute",
-    top: 50, // Adjusted so it doesn't hide under status bar
+    top: 10, // Adjusted so it doesn't hide under status bar
     right: 20,
     zIndex: 999,
     borderRadius: 30, // Using numbers is safer for some Android versions than "50%"

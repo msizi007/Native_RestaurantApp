@@ -1,5 +1,6 @@
 import CartFAB from "@/components/cartFAB";
 import MenuItem from "@/components/MenuItem";
+import Promo from "@/components/Promo";
 import { addToCart } from "@/features/cartSlice";
 import { getCategoryImages, getTrendingImages } from "@/features/imageSlice";
 import { getTrendingItems } from "@/features/itemSlice";
@@ -46,6 +47,7 @@ export default function Home() {
     // Inside your Home return...
     <ScrollView style={styles.container}>
       <CartFAB />
+
       <View style={styles.header}>
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={20} color="#888" />
@@ -59,6 +61,8 @@ export default function Home() {
           />
         </View>
       </View>
+
+      <Promo />
 
       <Text style={styles.sectionTitle}>Food Categories</Text>
       <ScrollView
@@ -117,7 +121,6 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 20,
   },
   searchBar: {
     flexDirection: "row",

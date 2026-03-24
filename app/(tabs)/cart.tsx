@@ -1,5 +1,5 @@
 import CartItem from "@/components/CartItem";
-import { Checkout } from "@/components/Checkout";
+import Checkout from "@/components/Checkout";
 import { EmptyCart } from "@/components/EmptyCart";
 import { getItemsByIds } from "@/features/itemSlice";
 import { createOrder } from "@/features/orderSlice";
@@ -9,6 +9,7 @@ import { Item } from "@/types/Item";
 import { Order } from "@/types/Order";
 import { User } from "@/types/User";
 import { getLocalUser } from "@/utils/storage";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -35,6 +36,7 @@ const Cart = () => {
   const { popup } = usePaystack();
   const [user, setUser] = useState<User | null>(null);
   const [payKey, setPayKey] = useState(0);
+  const router = useRouter();
 
   console.log({ user });
 
@@ -151,7 +153,10 @@ const Cart = () => {
 
         {showPayment && <Checkout />}
 
-        <TouchableOpacity style={styles.checkoutBtn} onPress={handlePay}>
+        <TouchableOpacity
+          style={styles.checkoutBtn}
+          onPress={() => router.push("/(tabs)/checkout")}
+        >
           <Text style={styles.checkoutText}>Proceed to Checkout</Text>
         </TouchableOpacity>
       </View>
