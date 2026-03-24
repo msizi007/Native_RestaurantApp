@@ -83,23 +83,19 @@ const Profile = () => {
                 title="Edit Profile"
                 onPress={() => router.push("/profile/edit-profile")}
               />
+
               <View style={styles.divider} />
             </View>
           </View>
 
           {/* Preferences Section */}
           <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Orders</Text>
             <View style={styles.card}>
               <MenuItem
                 icon="time-outline"
                 title="Order History"
                 onPress={() => router.push("/profile/order-history")}
-              />
-              <View style={styles.divider} />
-              <MenuItem
-                icon="settings-outline"
-                title="App Preferences"
-                onPress={() => router.push("/profile/preferences")}
               />
             </View>
           </View>

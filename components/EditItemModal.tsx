@@ -37,11 +37,24 @@ export const EditItemModal = (props: Props) => {
     }
   }, [props.item]);
 
+  useEffect(() => {
+    console.log(100000);
+  }, [formData]);
+
   function handleEdit() {
-    dispatch(updateItem({ ...props.item!, ...formData, category: category! }));
+    dispatch(
+      updateItem({
+        ...props.item!,
+        ...formData,
+        category: category!,
+        status: status!,
+      }),
+    );
     Alert.alert("Success", "Item updated successfully");
     props.setState(false); // Close modal after saving
   }
+
+  console.log("@editItem", { formData, category });
 
   return (
     <Modal visible={props.visible} animationType="slide" transparent={false}>
@@ -134,7 +147,12 @@ export const EditItemModal = (props: Props) => {
                     }}
                   >
                     <Text style={styles.optionText}>{cat}</Text>
-                    {formData.category === cat && (
+                    {formData.category == cat ? (
+                      <Text>1hgshgshshshshshshsss</Text>
+                    ) : (
+                      <Text>0000000000000000000000000</Text>
+                    )}
+                    {formData.category == cat && (
                       <AntDesign
                         name="check-circle"
                         size={20}

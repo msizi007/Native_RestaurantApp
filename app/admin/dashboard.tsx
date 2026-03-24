@@ -36,6 +36,8 @@ export default function AdminDashboard() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
+  console.log("@dashboard", recentUsers);
+
   useEffect(() => {
     dispatch(getAllOrders());
   }, []);
@@ -67,7 +69,6 @@ export default function AdminDashboard() {
       dispatch(getUsersByIds(recent.map((order) => order.userId)));
     }
   }, [orders]);
-
 
   function logout() {
     removeLocalUser();

@@ -135,6 +135,7 @@ const userSlice = createSlice({
   reducers: {
     logoutUser: (state) => {
       state.current = null;
+      state.users = [];
     },
   },
   extraReducers: (builder) => {
