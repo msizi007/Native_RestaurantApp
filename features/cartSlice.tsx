@@ -87,6 +87,17 @@ export const addToCart = createAsyncThunk(
   },
 );
 
+export const clearCart = createAsyncThunk(
+  "cart/clearCart",
+  async (cartId: number, { rejectWithValue }) => {
+    try {
+      return await getCartByUserIdDB(cartId);
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+)
+
 export const cartSlice = createSlice({
   name: "cart",
   initialState,

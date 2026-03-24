@@ -10,7 +10,6 @@ export async function createCartItemDB(
     .select()
     .single();
 
-
   if (error) {
     throw new Error(error.message);
   }
@@ -69,7 +68,6 @@ export async function incrementQuantityDB(
   // 1. Get the current quantity first
   const existingItem = await getCartItemByIdDB(cartId, itemId);
 
-
   if (!existingItem) return null;
 
   // 2. Perform the update with the incremented value
@@ -79,7 +77,6 @@ export async function incrementQuantityDB(
     .eq("id", existingItem.id)
     .select("*")
     .single();
-
 
   if (error) throw new Error(error.message);
 
@@ -93,7 +90,6 @@ export async function decrementQuantityDB(
   // 1. Get the current quantity first
   const existingItem = await getCartItemByIdDB(cartId, itemId);
 
-
   if (!existingItem) return null;
 
   // 2. Perform the update with the incremented value
@@ -104,8 +100,21 @@ export async function decrementQuantityDB(
     .select("*")
     .single();
 
-
   if (error) throw new Error(error.message);
 
   return data as CartItem | null;
+}
+
+export async function clearCartItemsByCartIdDB(
+  cardId: number,
+): Promise<boolean> {
+  const { error } = await supabase
+    .from("CartItem")
+    .delete()
+    .eq("cartId", cardId);
+  if (error) {
+    console.error(error.message);
+    return false;
+  }
+  return true;
 }

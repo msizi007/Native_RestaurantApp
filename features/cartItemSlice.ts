@@ -1,4 +1,5 @@
 import {
+  clearCartItemsByCartIdDB,
   decrementQuantityDB,
   deleteCartItemDB,
   getCartItemsDB,
@@ -84,6 +85,18 @@ export const decrementItemQuantity = createAsyncThunk(
   },
 );
 
+export const clearCartItemsByCartId = createAsyncThunk(
+  "cartItem/clearCartItemsByCartId",
+  async (cartId: number, { rejectWithValue }) => {
+    try {
+      const clearedItems = await clearCartItemsByCartIdDB(cartId);
+      if (clearedItems) return [];
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 export const cartItemSlice = createSlice({
   name: "cartItem",
   initialState,
@@ -119,6 +132,17 @@ export const cartItemSlice = createSlice({
       })
       .addCase(removeCartItem.rejected, (state, action) => {
         state.error = action.payload as string;
+      })
+      .addCase(clearCartItemsByCartId.fulfilled, (state, action) => {
+        state.cartItems = action.payload as CartItem[];
+        state.loading = false;
+      })
+      .addCase(clearCartItemsByCartId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(clearCartItemsByCartId.pending, (state) => {
+        state.loading = true;
       });
   },
 });

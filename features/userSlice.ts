@@ -45,7 +45,6 @@ export const registerUser = createAsyncThunk(
 
       const newUser = await addUserDB(user);
 
-
       return newUser ? newUser : rejectWithValue("Failed to register user");
     } catch (error: any) {
       return rejectWithValue(error);
@@ -79,10 +78,9 @@ export const loginUser = createAsyncThunk(
 
       const user = await loginUserDB(credentials);
 
-
       return user
         ? { user, userType: "User" }
-        : rejectWithValue("Failed to login user");
+        : rejectWithValue("Invalid username or password");
     } catch (error: any) {
       const message = error.message || "An unexpected error occurred";
       return rejectWithValue(message);

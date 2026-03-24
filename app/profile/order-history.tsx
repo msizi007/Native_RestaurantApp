@@ -1,5 +1,11 @@
-import React from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { getOrdersByUserId } from "@/features/orderSlice";
+import { AppDispatch, RootState } from "@/store";
+import { Order } from "@/types/Order";
+import { User } from "@/types/User";
+import { getLocalUser } from "@/utils/storage";
+import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 const MOCK_ORDERS = [
   { id: "1", date: "Oct 12, 2025", total: "R 144.99", status: "Delivered" },
@@ -7,19 +13,73 @@ const MOCK_ORDERS = [
 ];
 
 export default function OrderHistory() {
+  const [user, setUser] = useState<User | null>(null);
+  const { current } = useSelector((state: RootState) => state.user);
+  const { orders } = useSelector((state: RootState) => state.order);
+  const dispatch = useDispatch<AppDispatch>();
+  const [sortedOrders, setSortedOrders] = useState<Order[] | null>(null);
+
+  // --- Data Loading ---
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUser = await getLocalUser();
+        if (storedUser) {
+          setUser(storedUser);
+        }
+      } catch (err) {
+        console.error("Failed to load user:", err);
+      }
+    };
+    if (!current) loadData();
+    else setUser(current);
+  }, []);
+
+  useEffect(() => {
+    if (user) dispatch(getOrdersByUserId(user!.id!));
+  }, [user]);
+
+  useEffect(() => {
+    if (orders && orders.length > 0) {
+      const priority = {
+        Pending: 1,
+        Delivered: 2,
+      };
+
+      const arrangedByStatus = [...orders].sort((a, b) => {
+        // 1. Get priorities (default to 99 for unknown statuses)
+        const priorityA = priority[a.status] || 99;
+        const priorityB = priority[b.status] || 99;
+
+        // 2. Primary Sort: By Status Priority
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+
+        // 3. Secondary Sort (The Fix):
+        // If status is the same, sort by ID (newest first) to keep the list stable
+        return b.id! - a.id!;
+      });
+
+      setSortedOrders(arrangedByStatus);
+    }
+  }, [orders]);
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={MOCK_ORDERS}
-        keyExtractor={(item) => item.id}
+        data={sortedOrders}
+        keyExtractor={(item) => `${item.id}`}
         renderItem={({ item }) => (
           <View style={styles.orderCard}>
             <View>
               <Text style={styles.orderId}>Order #{item.id}</Text>
-              <Text style={styles.orderDate}>{item.date}</Text>
+              <Text style={styles.orderDate}>
+                {item.created_at?.toString()}
+              </Text>
             </View>
             <View style={{ alignItems: "flex-end" }}>
-              <Text style={styles.orderTotal}>{item.total}</Text>
+              <Text style={styles.orderTotal}>R {item.totalPrice}</Text>
               <Text
                 style={[
                   styles.status,

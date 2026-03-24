@@ -10,7 +10,7 @@ import { User } from "@/types/User";
 import { getLocalUser } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -32,6 +32,17 @@ export default function Home() {
   const { trending } = useSelector((state: RootState) => state.item);
   const { current } = useSelector((state: RootState) => state.user);
   const [user, setUser] = useState<User | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return trending; // Return everything if search is empty
+
+    return trending!.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category?.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [searchQuery, trending]);
 
   useEffect(() => {
     dispatch(getCategoryImages());
@@ -79,7 +90,8 @@ export default function Home() {
               placeholderTextColor="#AAA"
               selectionColor="#E67E22" // Matches the orange theme from the image
               returnKeyType="search"
-              // onChangeText={(text) => handleSearch(text)} // Add your search logic here
+              value={searchQuery} // 3. Bind value
+              onChangeText={(text) => setSearchQuery(text)} // 4. Update state
             />
           </View>
         </View>
@@ -108,8 +120,8 @@ export default function Home() {
         </View>
 
         <View style={styles.gridContainer}>
-          {trending &&
-            trending.map((item) => (
+          {filteredItems &&
+            filteredItems.map((item) => (
               <MenuItem
                 key={item.id}
                 variant="card"
@@ -118,13 +130,13 @@ export default function Home() {
                 price={`R ${item.price}`}
                 onPress={() => handlePress(String(item.id))} // Navigates to details
                 onAddToCart={() => {
-                  if (!current) {
+                  if (!user) {
                     alert("You have to first login to your account.");
                     return;
                   }
 
                   // Replace 'addToCart' with your actual action name
-                  dispatch(addToCart({ item, userId: current!.id! }));
+                  dispatch(addToCart({ item, userId: user!.id! }));
                   alert(`${item.name} added to cart!`);
                 }}
               />

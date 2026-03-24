@@ -1,4 +1,5 @@
 import { EditBankDetails } from "@/components/EditBankDetails";
+import { clearCartItemsByCartId } from "@/features/cartItemSlice";
 import { getItemsByIds } from "@/features/itemSlice";
 import { createOrder } from "@/features/orderSlice";
 import { AppDispatch, RootState } from "@/store";
@@ -36,10 +37,9 @@ export default function CheckoutScreen() {
   const { cartItems, cartId } = useSelector(
     (state: RootState) => state.cartItem,
   );
-  const { current, items } = useSelector((state: RootState) => state.item);
+  const { items } = useSelector((state: RootState) => state.item);
   const cartChanges = useSelector((state: RootState) => state.cartItem.current);
   const dispatch = useDispatch<AppDispatch>();
-  const [showPayment, setShowPayment] = React.useState(false);
   const { popup } = usePaystack();
   const [user, setUser] = useState<User | null>(null);
   const [payKey, setPayKey] = useState(0);
@@ -153,6 +153,7 @@ export default function CheckoutScreen() {
       amount: calcTotalPrice(),
       onSuccess: () => {
         dispatch(createOrder(payload));
+        dispatch(clearCartItemsByCartId(cartId!));
         setPayKey((prev) => prev + 1);
       },
       onCancel: () => console.log("User cancelled"),
