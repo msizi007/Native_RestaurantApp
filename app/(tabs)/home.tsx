@@ -6,22 +6,32 @@ import { getCategoryImages, getTrendingImages } from "@/features/imageSlice";
 import { getTrendingItems } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
+import { ItemCategory } from "@/types/Item";
 import { User } from "@/types/User";
 import { getLocalUser } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-const categories = [
-  "Burger & Chips",
-  "Beverages",
-  "Vegeterian",
-  "Chicken",
-  "Desserts",
-  "Pizza",
-].sort();
+const categories: ItemCategory[] = (
+  [
+    "Burger & Chips",
+    "Beverages",
+    "Vegeterian",
+    "Chicken",
+    "Desserts",
+    "Pizza",
+  ] as ItemCategory[]
+).sort();
 
 export default function Home() {
   const router = useRouter();
@@ -33,26 +43,32 @@ export default function Home() {
   const { current } = useSelector((state: RootState) => state.user);
   const [user, setUser] = useState<User | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<ItemCategory | null>(
+    null,
+  );
 
   const filteredItems = useMemo(() => {
-    // 1. If no search query, return all items that are Available
-    if (!searchQuery.trim()) {
-      return trending?.filter((item) => item.status === "Available") || [];
-    }
-
-    // 2. If searching, return items matching query AND status Available
     return (
       trending?.filter((item) => {
+        // 1. Availability check (Mandatory)
+        const isAvailable = item.status === "Available";
+        if (!isAvailable) return false;
+
+        // 2. Search Query check
         const matchesSearch =
+          searchQuery.trim() === "" ||
           item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           item.category?.toLowerCase().includes(searchQuery.toLowerCase());
 
-        const isAvailable = item.status === "Available";
+        // 3. Category check
+        // If no category is selected, it passes. If one is selected, item.category must match.
+        const matchesCategory =
+          !selectedCategory || item.category === selectedCategory;
 
-        return matchesSearch && isAvailable;
+        return matchesSearch && matchesCategory;
       }) || []
     );
-  }, [searchQuery, trending]);
+  }, [searchQuery, trending, selectedCategory]);
 
   console.log("@home: ", filteredItems);
 
@@ -116,20 +132,41 @@ export default function Home() {
           showsHorizontalScrollIndicator={false}
           style={styles.horizontalScroll}
         >
-          {categories.map((category, i) => (
-            <MenuItem
-              key={i}
-              variant="category"
-              image={{ uri: categoryImages?.[i]?.publicUrl }}
-              text={category}
-              onPress={() => {}}
-            />
-          ))}
+          {/* Add an "All" category or just allow toggling */}
+          {categories.map((category, i) => {
+            const isSelected = selectedCategory === category;
+            console.log(isSelected);
+
+            return (
+              <MenuItem
+                key={category}
+                variant="category"
+                image={{ uri: categoryImages?.[i]?.publicUrl }}
+                text={category}
+                // Apply the active style only if selected
+                style={[
+                  styles.categoryBase, // Your default category style
+                  isSelected && styles.activeCategory,
+                ]}
+                onPress={() =>
+                  setSelectedCategory(isSelected ? null : category)
+                }
+              />
+            );
+          })}
         </ScrollView>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Most Popular</Text>
-          <Text style={styles.viewMore}>View more {">"}</Text>
+          <Text style={styles.sectionTitle}>
+            {selectedCategory ? `${selectedCategory}` : "Most Popular"}
+          </Text>
+          {selectedCategory && (
+            <TouchableOpacity onPress={() => setSelectedCategory(null)}>
+              <Text style={[styles.viewMore, { color: "red" }]}>
+                Clear Filter
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.gridContainer}>
@@ -234,5 +271,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#222", // Darker text for actual typing
     height: 40, // Consistent height
+  },
+  activeCategory: {
+    backgroundColor: "#FFF5EE", // Very light orange/seashell tint
+    borderColor: "#E67E22", // Your theme's orange
+    borderWidth: 2, // Make the border thick enough to notice
+    transform: [{ scale: 1.05 }], // Slight "pop" effect
+    elevation: 5, // Shadow for Android
+    shadowColor: "#E67E22", // Glow effect for iOS
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  activeCategoryText: {
+    color: "#E67E22", // Turn the text orange too
+    fontWeight: "800",
+  },
+  categoryBase: {
+    borderWidth: 2,
+    borderColor: "transparent", // Prevents the layout from "jumping" when the border appears
+    backgroundColor: "#FFF",
+    // ... other styles
   },
 });
