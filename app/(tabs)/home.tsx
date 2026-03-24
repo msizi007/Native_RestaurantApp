@@ -35,14 +35,26 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return trending; // Return everything if search is empty
+    // 1. If no search query, return all items that are Available
+    if (!searchQuery.trim()) {
+      return trending?.filter((item) => item.status === "Available") || [];
+    }
 
-    return trending!.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category?.toLowerCase().includes(searchQuery.toLowerCase()),
+    // 2. If searching, return items matching query AND status Available
+    return (
+      trending?.filter((item) => {
+        const matchesSearch =
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.category?.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const isAvailable = item.status === "Available";
+
+        return matchesSearch && isAvailable;
+      }) || []
     );
   }, [searchQuery, trending]);
+
+  console.log("@home: ", filteredItems);
 
   useEffect(() => {
     dispatch(getCategoryImages());
@@ -110,6 +122,7 @@ export default function Home() {
               variant="category"
               image={{ uri: categoryImages?.[i]?.publicUrl }}
               text={category}
+              onPress={() => {}}
             />
           ))}
         </ScrollView>

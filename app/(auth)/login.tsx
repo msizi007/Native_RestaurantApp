@@ -36,14 +36,8 @@ export default function Login() {
     if (current && userType === "Admin") {
       router.replace("/admin/dashboard");
       return;
-    }
-
-    if (current) {
+    } else if (current && userType == "User") {
       setLocalUser(current);
-      // Use replace so they can't 'Go Back' to login after entering the app
-      // router.replace("/(tabs)");
-
-
       router.push("/home");
     }
     return;
