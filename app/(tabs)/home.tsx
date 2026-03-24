@@ -6,9 +6,11 @@ import { getCategoryImages, getTrendingImages } from "@/features/imageSlice";
 import { getTrendingItems } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
+import { User } from "@/types/User";
+import { getLocalUser } from "@/utils/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -29,12 +31,15 @@ export default function Home() {
   );
   const { trending } = useSelector((state: RootState) => state.item);
   const { current } = useSelector((state: RootState) => state.user);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     dispatch(getCategoryImages());
     dispatch(getTrendingImages());
     dispatch(getTrendingItems());
   }, []);
+
+  console.log("@home.tsx", { current, user });
 
   const handlePress = (itemId: string) => {
     router.push({
@@ -43,71 +48,89 @@ export default function Home() {
     });
   };
 
+  // --- Data Loading ---
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUser = await getLocalUser();
+        if (storedUser) {
+          setUser(storedUser);
+        }
+      } catch (err) {
+        console.error("Failed to load user:", err);
+      }
+    };
+    if (!current) loadData();
+    else setUser(current);
+  }, []);
+
   return (
     // Inside your Home return...
     <ScrollView style={styles.container}>
-      <CartFAB />
+      <>
+        {user && user.id && <CartFAB />}
 
-      <View style={styles.header}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={20} color="#888" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Type a dish or cuisine"
-            placeholderTextColor="#AAA"
-            selectionColor="#E67E22" // Matches the orange theme from the image
-            returnKeyType="search"
-            // onChangeText={(text) => handleSearch(text)} // Add your search logic here
-          />
+        <View style={styles.header}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search-outline" size={20} color="#888" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Type a dish or cuisine"
+              placeholderTextColor="#AAA"
+              selectionColor="#E67E22" // Matches the orange theme from the image
+              returnKeyType="search"
+              // onChangeText={(text) => handleSearch(text)} // Add your search logic here
+            />
+          </View>
         </View>
-      </View>
 
-      <Promo />
+        <Promo />
 
-      <Text style={styles.sectionTitle}>Food Categories</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.horizontalScroll}
-      >
-        {categories.map((category, i) => (
-          <MenuItem
-            key={i}
-            variant="category"
-            image={{ uri: categoryImages?.[i]?.publicUrl }}
-            text={category}
-          />
-        ))}
-      </ScrollView>
-
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Most Popular</Text>
-        <Text style={styles.viewMore}>View more {">"}</Text>
-      </View>
-
-      <View style={styles.gridContainer}>
-        {trending &&
-          trending.map((item) => (
+        <Text style={styles.sectionTitle}>Food Categories</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.horizontalScroll}
+        >
+          {categories.map((category, i) => (
             <MenuItem
-              key={item.id}
-              variant="card"
-              image={{ uri: item.imageUrl }}
-              text={item.name}
-              price={`R ${item.price}`}
-              onPress={() => handlePress(String(item.id))} // Navigates to details
-              onAddToCart={() => {
-                if (!current) {
-                  alert("You have to first login to your account.");
-                  return;
-                }
-
-                // Replace 'addToCart' with your actual action name
-                dispatch(addToCart({ item, userId: current!.id! }));
-                alert(`${item.name} added to cart!`);
-              }}
+              key={i}
+              variant="category"
+              image={{ uri: categoryImages?.[i]?.publicUrl }}
+              text={category}
             />
           ))}
-      </View>
+        </ScrollView>
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Most Popular</Text>
+          <Text style={styles.viewMore}>View more {">"}</Text>
+        </View>
+
+        <View style={styles.gridContainer}>
+          {trending &&
+            trending.map((item) => (
+              <MenuItem
+                key={item.id}
+                variant="card"
+                image={{ uri: item.imageUrl }}
+                text={item.name}
+                price={`R ${item.price}`}
+                onPress={() => handlePress(String(item.id))} // Navigates to details
+                onAddToCart={() => {
+                  if (!current) {
+                    alert("You have to first login to your account.");
+                    return;
+                  }
+
+                  // Replace 'addToCart' with your actual action name
+                  dispatch(addToCart({ item, userId: current!.id! }));
+                  alert(`${item.name} added to cart!`);
+                }}
+              />
+            ))}
+        </View>
+      </>
     </ScrollView>
   );
 }

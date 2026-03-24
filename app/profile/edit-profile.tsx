@@ -32,6 +32,8 @@ export default function EditProfile() {
 
   const { current } = useSelector((state: RootState) => state.user);
 
+  console.log(400, { user, current });
+
   // --- Data Loading ---
   useEffect(() => {
     const loadData = async () => {
@@ -45,19 +47,27 @@ export default function EditProfile() {
         setError("Could not load user data.");
       }
     };
-    loadData();
+    if (!current) loadData();
   }, []);
 
   useEffect(() => {
     if (current) {
       setLocalUser(current);
-      setFirstName(current.firstName || "");
-      setLastName(current.lastName || "");
-      setEmail(current.email || "");
-      setPhoneNumber(current.phoneNumber || "");
-      setAddress(current.address || "");
+      setFirstName(current.firstName);
+      setLastName(current.lastName);
+      setEmail(current.email);
+      setPhoneNumber(current.phoneNumber);
+      setAddress(current.address);
     }
-  }, [current]);
+
+    if (user) {
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setEmail(user.email);
+      setPhoneNumber(user.phoneNumber);
+      setAddress(user.address);
+    }
+  }, [current, user]);
 
   // --- Handlers ---
   const onUpdateProfile = () => {
@@ -96,7 +106,7 @@ export default function EditProfile() {
       />
       <TouchableOpacity
         onPress={() => {
-          (setIsEditable(!isEditable));
+          setIsEditable(!isEditable);
         }}
         style={{
           position: "absolute",
@@ -107,7 +117,7 @@ export default function EditProfile() {
         <Ionicons
           name="eye"
           size={40}
-          color={isEditable ? "#E4002B" : "#CCC"}
+          color={!isEditable ? "#E4002B" : "#CCC"}
         />
       </TouchableOpacity>
 

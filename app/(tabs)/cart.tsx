@@ -2,17 +2,14 @@ import CartItem from "@/components/CartItem";
 import Checkout from "@/components/Checkout";
 import { EmptyCart } from "@/components/EmptyCart";
 import { getItemsByIds } from "@/features/itemSlice";
-import { createOrder } from "@/features/orderSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
 import { Item } from "@/types/Item";
-import { Order } from "@/types/Order";
 import { User } from "@/types/User";
 import { getLocalUser } from "@/utils/storage";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,24 +19,24 @@ import {
 import { usePaystack } from "react-native-paystack-webview";
 import { useDispatch, useSelector } from "react-redux";
 
-const { width } = Dimensions.get("window");
-
 const Cart = () => {
   // Mock data for skeleton items
   const { cartItems, cartId } = useSelector(
     (state: RootState) => state.cartItem,
   );
-  const { current, items } = useSelector((state: RootState) => state.item);
+  const { items } = useSelector((state: RootState) => state.item);
   const cartChanges = useSelector((state: RootState) => state.cartItem.current);
   const dispatch = useDispatch<AppDispatch>();
   const [showPayment, setShowPayment] = React.useState(false);
   const { popup } = usePaystack();
   const [user, setUser] = useState<User | null>(null);
   const [payKey, setPayKey] = useState(0);
+  const { current } = useSelector((state: RootState) => state.user);
   const router = useRouter();
 
-  console.log({ user });
+  console.log({ user, current });
 
+  // load user
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -51,7 +48,8 @@ const Cart = () => {
         console.error("Failed to load user:", err);
       }
     };
-    loadData();
+    if (!current) loadData();
+    else setUser(current);
   }, []);
 
   useEffect(() => {
@@ -77,7 +75,7 @@ const Cart = () => {
     }
   }, [cartChanges]);
 
-  function calcTotalPrice(items: Item[] | null): number {
+  function calcSubTotal(items: Item[] | null): number {
     if (!items || !cartItems) return 0; // Guard against null
     let total = 0;
     for (let i = 0; i < items.length; i++) {
@@ -89,32 +87,18 @@ const Cart = () => {
     return total;
   }
 
-  const handlePay = () => {
-    if (!user || !user.id) {
-      alert("User profile not loaded. Please log in again.");
-      return;
-    }
-    const payload: Order = {
-      cartId: cartId!,
-      userId: user!.id!,
-      status: "Pending",
-      totalPrice: calcTotalPrice(items),
-    };
-    popup.checkout({
-      email: user.email,
-      amount: calcTotalPrice(items),
-      onSuccess: (res) => {
-        dispatch(createOrder(payload));
-        setPayKey((prev) => prev + 1);
-      },
-      onCancel: () => console.log("User cancelled"),
-    });
-  };
+  function calcDelivery(): number {
+    return (calcSubTotal(items) / 100) * 10;
+  }
+
+  function calcTotalPrice(): number {
+    return calcSubTotal(items) + calcDelivery();
+  }
 
   return (
     <View style={styles.container} key={payKey}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {cartItems && items && cartItems.length === cartItems.length ? (
+        {user && cartItems && items && cartItems.length === cartItems.length ? (
           cartItems.map((cartItem) => {
             // DO NOT USE INDEX 'i'. Find the item details by ID.
             const itemDetails = items!.find(
@@ -141,25 +125,39 @@ const Cart = () => {
       </ScrollView>
 
       {/* Bottom Summary Section */}
-      <View style={styles.footer}>
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalPrice}>
-            {items != null
-              ? `R ${calcTotalPrice(items!).toFixed(2)}`
-              : `R 0.00`}
-          </Text>
+      {user && (
+        <View style={styles.footer}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Subtotal</Text>
+            <Text style={styles.totalPrice}>
+              {items != null
+                ? `R ${calcSubTotal(items!).toFixed(2)}`
+                : `R 0.00`}
+            </Text>
+          </View>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Delivery Charges</Text>
+            <Text style={styles.totalPrice}>
+              {items != null ? `R ${calcDelivery().toFixed(2)}` : `R 0.00`}
+            </Text>
+          </View>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total Price</Text>
+            <Text style={styles.totalPrice}>
+              {items != null ? `R ${calcTotalPrice().toFixed(2)}` : `R 0.00`}
+            </Text>
+          </View>
+
+          {showPayment && <Checkout />}
+
+          <TouchableOpacity
+            style={styles.checkoutBtn}
+            onPress={() => router.push("/(tabs)/checkout")}
+          >
+            <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+          </TouchableOpacity>
         </View>
-
-        {showPayment && <Checkout />}
-
-        <TouchableOpacity
-          style={styles.checkoutBtn}
-          onPress={() => router.push("/(tabs)/checkout")}
-        >
-          <Text style={styles.checkoutText}>Proceed to Checkout</Text>
-        </TouchableOpacity>
-      </View>
+      )}
     </View>
   );
 };
@@ -168,6 +166,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8F8F8",
+    paddingTop: 60,
   },
   button: {
     backgroundColor: Colors.primary,
@@ -176,7 +175,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalPrice: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     borderRadius: 10,
     alignItems: "center",
@@ -258,10 +257,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   totalLabel: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#888",
   },
   checkoutBtn: {
