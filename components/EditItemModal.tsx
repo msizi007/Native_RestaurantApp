@@ -34,12 +34,11 @@ export const EditItemModal = (props: Props) => {
   useEffect(() => {
     if (props.item) {
       setFormData(props.item);
+      // Initialize the dropdown states with the current item values
+      setCategory(props.item.category);
+      setStatus(props.item.status);
     }
-  }, [props.item]);
-
-  useEffect(() => {
-    console.log(100000);
-  }, [formData]);
+  }, [props.item, props.visible]); // Re-run when modal becomes visible or item changes
 
   function handleEdit() {
     dispatch(
@@ -147,12 +146,7 @@ export const EditItemModal = (props: Props) => {
                     }}
                   >
                     <Text style={styles.optionText}>{cat}</Text>
-                    {formData.category == cat ? (
-                      <Text>1hgshgshshshshshshsss</Text>
-                    ) : (
-                      <Text>0000000000000000000000000</Text>
-                    )}
-                    {formData.category == cat && (
+                    {category == cat && (
                       <AntDesign
                         name="check-circle"
                         size={20}
