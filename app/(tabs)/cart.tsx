@@ -1,14 +1,12 @@
 import CartItem from "@/components/CartItem";
-import Checkout from "@/components/Checkout";
 import { EmptyCart } from "@/components/EmptyCart";
 import { getItemsByIds } from "@/features/itemSlice";
 import { AppDispatch, RootState } from "@/store";
 import { Colors } from "@/types/Colors";
-import { Item } from "@/types/Item";
 import { User } from "@/types/User";
 import { getLocalUser } from "@/utils/storage";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -16,7 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { usePaystack } from "react-native-paystack-webview";
 import { useDispatch, useSelector } from "react-redux";
 
 const Cart = () => {
@@ -25,15 +22,10 @@ const Cart = () => {
     (state: RootState) => state.cartItem,
   );
   const { items } = useSelector((state: RootState) => state.item);
-  const cartChanges = useSelector((state: RootState) => state.cartItem.current);
   const dispatch = useDispatch<AppDispatch>();
-  const [showPayment, setShowPayment] = React.useState(false);
-  const { popup } = usePaystack();
   const [user, setUser] = useState<User | null>(null);
-  const [payKey, setPayKey] = useState(0);
   const { current } = useSelector((state: RootState) => state.user);
   const router = useRouter();
-
 
   // load user
   useEffect(() => {
@@ -67,35 +59,24 @@ const Cart = () => {
     fetchCartDetails();
   }, [cartItems]);
 
-  useEffect(() => {
-    if (cartChanges) {
-      const ids = cartItems.map((cartItem) => cartItem.itemId);
-      dispatch(getItemsByIds(ids));
-    }
-  }, [cartChanges]);
-
-  function calcSubTotal(items: Item[] | null): number {
-    if (!items || !cartItems) return 0; // Guard against null
-    let total = 0;
-    for (let i = 0; i < items.length; i++) {
-      // Also check if the specific item exists in the array
-      if (items[i]) {
-        total += items[i].price * (cartItems[i]?.quantity || 0);
-      }
-    }
-    return total;
-  }
+  const subTotal = useMemo(() => {
+    if (!items || !cartItems) return 0;
+    return cartItems.reduce((acc, cartItem) => {
+      const detail = items.find((i) => i.id === cartItem.itemId);
+      return acc + (detail?.price || 0) * cartItem.quantity;
+    }, 0);
+  }, [cartItems, items]);
 
   function calcDelivery(): number {
-    return (calcSubTotal(items) / 100) * 10;
+    return (subTotal / 100) * 10;
   }
 
   function calcTotalPrice(): number {
-    return calcSubTotal(items) + calcDelivery();
+    return subTotal + calcDelivery();
   }
 
   return (
-    <View style={styles.container} key={payKey}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {user && cartItems && items && cartItems.length === cartItems.length ? (
           cartItems.map((cartItem) => {
@@ -129,9 +110,7 @@ const Cart = () => {
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal</Text>
             <Text style={styles.totalPrice}>
-              {items != null
-                ? `R ${calcSubTotal(items!).toFixed(2)}`
-                : `R 0.00`}
+              {items != null ? `R ${subTotal.toFixed(2)}` : `R 0.00`}
             </Text>
           </View>
           <View style={styles.totalRow}>
@@ -146,8 +125,6 @@ const Cart = () => {
               {items != null ? `R ${calcTotalPrice().toFixed(2)}` : `R 0.00`}
             </Text>
           </View>
-
-          {showPayment && <Checkout />}
 
           <TouchableOpacity
             style={styles.checkoutBtn}

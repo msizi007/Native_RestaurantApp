@@ -1,53 +1,88 @@
-# INSPO - https://dribbble.com/shots/24144195-Taste-Craft-Food-Mobile-App
+## Native Restaurant App
 
+![Native_RestaurantApp](https://socialify.git.ci/msizi007/Native_RestaurantApp/image?language=1&owner=1&name=1&stargazers=1&theme=Light)
 
-Welcome to your Expo app 👋
+BookNest is a comprehensive solution for restaurant discovery and reservation management.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+#### Get Started
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Clone the project
 
 ```bash
-npm run reset-project
+git clone https://github.com/msizi007/Native_RestaurantApp.git
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. install the necessary dependancies
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Start running the app with npm start
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm start
+```
 
-## Join the community
+#### Credentials
 
-Join our community of developers creating universal apps.
+- In order to test the admin functionality these are the admin credentials. This can also be found under **./admin.json**
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```json
+{
+  "email": "admin07@gmail.com",
+  "password": "admin07"
+}
+```
+
+#### Project Structure
+
+```bash
+Native_RestaurantApp/
+├── .expo/                # Expo configuration and cache
+├── .vscode/              # Editor-specific settings
+├── app/                  # Main Application Router (Expo Router)
+│   ├── (auth)/           # Authentication Group
+│   │   ├── _layout.tsx      # Auth-specific layout
+│   │   ├── login.tsx        # Login Screen
+│   │   └── register.tsx     # Registration Screen
+│   ├── (tabs)/           # Main App Navigation (Tab Bar)
+│   │   ├── _layout.tsx      # Tab bar configuration
+│   │   ├── cart.tsx         # Shopping Cart Screen
+│   │   ├── checkout.tsx     # Checkout Process Screen
+│   │   └── profile.tsx      # User Profile Screen
+│   ├── admin/            # Administrative Screens
+│   ├── item/             # Item detail view routes
+│   └── profile/          # Expanded profile routes
+│       ├── _layout.tsx
+│       └── index.tsx
+├── assets/               # Images, fonts, and static media
+├── components/           # Reusable UI Components
+├── features/             # Redux Slices (State Logic)
+├── lib/                  # Third-party library configurations
+├── services/             # API calls and external services
+├── types/                # TypeScript interfaces and types
+├── utils/                # Helper functions and constants
+├── .env                  # Environment variables (API Keys, URLs)
+├── .gitignore
+├── admin.json            # Admin specific config
+├── app.json              # Expo configuration file
+├── database.json         # Local/Mock database storage
+├── eslint.config.js      # Linting rules
+├── expo-env.d.ts
+├── package.json          # Project dependencies and scripts
+├── README.md             # Project documentation
+├── store.ts              # Redux Store configuration
+└── tsconfig.json         # TypeScript configuration
+```
+
+#### Tech Stack
+
+- React Native (UI)
+- React Redux (State Management)
+- Paystack (Payment API)
+- Supabase (Database)
+
+#### Author
+
+M.S Mwelase
