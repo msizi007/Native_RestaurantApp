@@ -70,7 +70,6 @@ export default function Home() {
     );
   }, [searchQuery, trending, selectedCategory]);
 
-  console.log("@home: ", filteredItems);
 
   useEffect(() => {
     dispatch(getCategoryImages());
@@ -78,7 +77,6 @@ export default function Home() {
     dispatch(getTrendingItems());
   }, []);
 
-  console.log("@home.tsx", { current, user });
 
   const handlePress = (itemId: string) => {
     router.push({
@@ -135,7 +133,6 @@ export default function Home() {
           {/* Add an "All" category or just allow toggling */}
           {categories.map((category, i) => {
             const isSelected = selectedCategory === category;
-            console.log(isSelected);
 
             return (
               <MenuItem

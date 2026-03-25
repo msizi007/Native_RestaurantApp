@@ -45,8 +45,6 @@ export default function CheckoutScreen() {
   const [payKey, setPayKey] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
 
-  console.log(888, { user });
-
   const PaymentOption = ({
     label,
     iconName,

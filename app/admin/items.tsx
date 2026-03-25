@@ -22,7 +22,6 @@ export default function ItemsManager() {
     dispatch(getItems());
   }, []);
 
-  console.log("@items", { items });
 
   return (
     <View style={styles.container}>

@@ -15,7 +15,6 @@ import {
 const Profile = () => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  console.log(300, user);
 
   useEffect(() => {
     const loadData = async () => {

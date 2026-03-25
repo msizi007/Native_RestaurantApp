@@ -32,7 +32,6 @@ export default function EditProfile() {
 
   const { current } = useSelector((state: RootState) => state.user);
 
-  console.log(400, { user, current });
 
   // --- Data Loading ---
   useEffect(() => {

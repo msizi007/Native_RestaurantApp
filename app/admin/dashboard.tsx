@@ -36,7 +36,6 @@ export default function AdminDashboard() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
-  console.log("@dashboard", recentUsers);
 
   useEffect(() => {
     dispatch(getAllOrders());

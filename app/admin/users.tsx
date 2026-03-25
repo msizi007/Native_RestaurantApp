@@ -18,7 +18,6 @@ export default function Users() {
     }
   }, [dispatch, users, updatedUsers]);
 
-  console.log({ users, numUsers: users?.length || 0 });
 
   return (
     <View style={styles.container}>

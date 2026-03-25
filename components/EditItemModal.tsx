@@ -53,7 +53,6 @@ export const EditItemModal = (props: Props) => {
     props.setState(false); // Close modal after saving
   }
 
-  console.log("@editItem", { formData, category });
 
   return (
     <Modal visible={props.visible} animationType="slide" transparent={false}>

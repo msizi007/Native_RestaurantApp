@@ -34,7 +34,6 @@ const Cart = () => {
   const { current } = useSelector((state: RootState) => state.user);
   const router = useRouter();
 
-  console.log({ user, current });
 
   // load user
   useEffect(() => {
