@@ -26,7 +26,7 @@ export const ItemCard = (props: Props) => {
       >
         <View>
           <Text style={styles.itemName}>{props.item.name}</Text>
-          <Text style={styles.itemPrice}>R {props.item.price}</Text>
+          <Text style={styles.itemPrice}>R {props.item.price.toFixed(2)}</Text>
         </View>
         <Entypo
           name={isOpen ? "chevron-up" : "chevron-down"}

@@ -79,7 +79,9 @@ export default function OrderHistory() {
               </Text>
             </View>
             <View style={{ alignItems: "flex-end" }}>
-              <Text style={styles.orderTotal}>R {item.totalPrice}</Text>
+              <Text style={styles.orderTotal}>
+                R {item.totalPrice.toFixed(2)}
+              </Text>
               <Text
                 style={[
                   styles.status,
