@@ -3,13 +3,13 @@ import {
   incrementItemQuantity,
   removeCartItem,
 } from "@/features/cartItemSlice";
-import { AppDispatch, RootState } from "@/store";
+import { AppDispatch } from "@/store";
 import { Colors } from "@/types/Colors";
 import { Item } from "@/types/Item";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 interface Props {
   id: number;
@@ -22,7 +22,6 @@ const CartItem = (props: Props) => {
   // If data hasn't loaded yet, show nothing or a placeholder
   if (!props.item) return null;
   const dispatch = useDispatch<AppDispatch>();
-  const { cartItems } = useSelector((state: RootState) => state.cartItem);
 
   function onIncrement() {
     dispatch(
@@ -31,8 +30,6 @@ const CartItem = (props: Props) => {
   }
 
   function onDecrement() {
-    const quantity = props.quantity;
-    const cartItemId = props.id;
     props.quantity == 1
       ? dispatch(removeCartItem(props.id))
       : dispatch(
